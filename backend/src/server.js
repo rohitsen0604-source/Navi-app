@@ -44,7 +44,16 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Health check endpoint
+// Root & Health check endpoints
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ONLINE',
+    service: 'Naavi Central Operations & Booking API',
+    message: 'Naavi Backend is running successfully on Render!',
+    timestamp: new Date()
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({
     status: 'ONLINE',
@@ -54,15 +63,31 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes (Mounted with /api prefix AND direct root alias for maximum compatibility)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/master-data', masterDataRoutes);
+app.use('/master-data', masterDataRoutes);
+
 app.use('/api/bookings', bookingRoutes);
+app.use('/bookings', bookingRoutes);
+
 app.use('/api/drivers', driverRoutes);
+app.use('/drivers', driverRoutes);
+
 app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes);
+
 app.use('/api/emergency', emergencyRoutes);
+app.use('/emergency', emergencyRoutes);
+
 app.use('/api/support', supportRoutes);
+app.use('/support', supportRoutes);
+
 app.use('/api/coupons', couponRoutes);
+app.use('/coupons', couponRoutes);
+
 
 
 // Error Handler Middleware

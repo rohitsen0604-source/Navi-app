@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://navi-app-8vqo.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -8,6 +8,7 @@ const api = axios.create({
     'Content-Type': 'application/json'
   }
 });
+
 
 // Set bearer token if saved
 api.interceptors.request.use((config) => {

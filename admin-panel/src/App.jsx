@@ -21,9 +21,10 @@ import ReportsView from './views/ReportsView';
 import AuditView from './views/AuditView';
 import SettingsView from './views/SettingsView';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://navi-app-8vqo.onrender.com';
 
 export default function App() {
+
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('naavi_admin_user');
