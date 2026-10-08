@@ -15,6 +15,9 @@ const masterDataRoutes = require('./routes/masterDataRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const driverRoutes = require('./routes/driverRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const supportRoutes = require('./routes/supportRoutes');
+const couponRoutes = require('./routes/couponRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -57,6 +60,10 @@ app.use('/api/master-data', masterDataRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/emergency', emergencyRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/coupons', couponRoutes);
+
 
 // Error Handler Middleware
 app.use(errorHandler);

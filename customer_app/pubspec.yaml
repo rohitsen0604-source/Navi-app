@@ -62,6 +62,10 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/ride_completed_header.jpg
+    - assets/images/live_boat_cruise.jpg
+    - assets/images/driver_avatar.jpg
+    - assets/images/river_map.jpg
     - assets/images/boat_row.jpg
     - assets/images/boat_motor.jpg
     - assets/images/boat_premium.jpg

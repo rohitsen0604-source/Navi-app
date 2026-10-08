@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'available_boats_screen.dart';
+import 'ghat_support_screen.dart';
+import 'legal_terms_screen.dart';
+import 'my_rides_screen.dart';
+import 'offers_coupons_screen.dart';
+import 'settings_screen.dart';
+import 'sos_emergency_screen.dart';
+
+
+
 
 class HomeScreen extends StatefulWidget {
   final int initialZoneNumber;
@@ -28,8 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedGhatName;
   
   List<dynamic> _ghats = [];
-  List<dynamic> _myRides = [];
   bool _loading = true;
+
+  // Profile data
+  String _profileName = 'Rahul Sharma';
+  String _profilePhone = '+91 98765 43210';
+  String _profileEmail = 'rahul.sharma@gmail.com';
 
   final List<Map<String, String>> _heroSlides = [
     {
@@ -61,12 +74,25 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _loading = true);
     try {
       final ghats = await ApiService.getGhats(_selectedZoneNumber);
-      final rides = await ApiService.getMyRides();
+      final profile = await ApiService.getUserProfile();
 
       if (mounted) {
         setState(() {
           _ghats = ghats;
-          _myRides = rides;
+          if (profile['user'] != null) {
+            final u = profile['user'];
+            final first = u['firstName'] ?? '';
+            final last = u['lastName'] ?? '';
+            if (first.isNotEmpty || last.isNotEmpty) {
+              _profileName = '$first $last'.trim();
+            }
+            if (u['phone'] != null && u['phone'].toString().isNotEmpty) {
+              _profilePhone = u['phone'];
+            }
+            if (u['email'] != null && u['email'].toString().isNotEmpty) {
+              _profileEmail = u['email'];
+            }
+          }
           if (ghats.isNotEmpty) {
             _selectedGhatId = ghats[0]['_id'];
             _selectedGhatName = ghats[0]['name'];
@@ -78,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+
 
   int _calculateFare() {
     int base = 350;
@@ -472,13 +499,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
 
-              // Right: Notification Bell + User Avatar
+              // Right: Settings Icon + Notification Bell + User Avatar
               Row(
                 children: [
                   IconButton(
+                    icon: const Icon(Icons.settings_outlined, color: Color(0xFF0F172A), size: 24),
+                    tooltip: 'Settings',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      );
+                    },
+                  ),
+                  IconButton(
                     icon: Stack(
                       children: [
-                        const Icon(Icons.notifications_none_rounded, color: Color(0xFF0F172A), size: 26),
+                        const Icon(Icons.notifications_none_rounded, color: Color(0xFF0F172A), size: 24),
                         Positioned(
                           right: 0,
                           top: 0,
@@ -500,15 +537,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   const SizedBox(width: 4),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFFFFF1EE),
-                      border: Border.all(color: const Color(0xFFFFD5CE), width: 1.5),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      );
+                    },
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFFFF1EE),
+                        border: Border.all(color: const Color(0xFFFFD5CE), width: 1.5),
+                      ),
+                      child: const Icon(Icons.person, color: Color(0xFFEB4D37), size: 22),
                     ),
-                    child: const Icon(Icons.person, color: Color(0xFFEB4D37), size: 22),
                   ),
                 ],
               ),
@@ -945,102 +990,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // TAB 2: My Rides / Ride History
   Widget _buildMyRidesTab() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'My Bookings & Rides',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-          ),
-          const SizedBox(height: 16),
-          if (_myRides.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: const Column(
-                children: [
-                  Icon(Icons.directions_boat_outlined, size: 48, color: Color(0xFF94A3B8)),
-                  SizedBox(height: 12),
-                  Text('No boat rides yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text('Your completed and upcoming boat tours will appear here', style: TextStyle(color: Color(0xFF64748B), fontSize: 13), textAlign: TextAlign.center),
-                ],
-              ),
-            )
-          else
-            ..._myRides.map((ride) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2)),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Ref: ${ride['bookingCode'] ?? "NV-RIDE"}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A)),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF1EE),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            (ride['status'] ?? 'COMPLETED').toString().replaceAll('_', ' '),
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFEB4D37)),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${ride['boardingPointId']?['name'] ?? "Assi Ghat"} • ${ride['boatCategory']?.toString().replaceAll('_', ' ') ?? "Motor Boat"}',
-                      style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('₹${ride['fareAmount'] ?? 950}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFFEB4D37))),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text('View Ticket', style: TextStyle(color: Color(0xFFEB4D37), fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
-        ],
-      ),
+    return MyRidesScreen(
+      showBackButton: true,
+      onBack: () => setState(() => _currentBottomNavIndex = 0),
     );
   }
 
   // TAB 3: Offers & Promo Codes
   Widget _buildOffersTab() {
     final offers = [
+      {'code': 'NAAVI50', 'title': '50% OFF up to ₹200 on Zone 1', 'desc': 'Valid on Dashashwamedh corridor boat rides'},
+      {'code': 'RIVER100', 'title': 'Flat ₹100 OFF on All Rides', 'desc': 'Applicable across all 84 Varanasi ghats'},
+      {'code': 'WELCOME20', 'title': '20% OFF on First Booking', 'desc': 'Special discount for new and returning passengers'},
       {'code': 'BANARAS10', 'title': '10% OFF Morning Subah-e-Banaras', 'desc': 'Valid on Assi Ghat early morning boat trips'},
-      {'code': 'AARTI20', 'title': '₹100 Cashback on Evening Aarti Bajra', 'desc': 'Valid on bookings above ₹1000'},
-      {'code': 'FIRSTNAAVI', 'title': 'Flat ₹50 OFF for New Passengers', 'desc': 'Auto-applied on your first river journey'},
     ];
 
     return SingleChildScrollView(
@@ -1049,55 +1011,98 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Special River Offers & Discounts',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-          ),
-          const SizedBox(height: 16),
-          ...offers.map((offer) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFFFD5CE)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A), size: 22),
+                    onPressed: () => setState(() => _currentBottomNavIndex = 0),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Special Offers',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                  ),
                 ],
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1EE),
-                      borderRadius: BorderRadius.circular(12),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OffersCouponsScreen(
+                        fareAmount: _calculateFare(),
+                        zoneNumber: _selectedZoneNumber,
+                      ),
                     ),
-                    child: const Icon(Icons.local_offer, color: Color(0xFFEB4D37), size: 24),
+                  );
+                },
+                child: const Text('View All', style: TextStyle(color: Color(0xFFEB4D37), fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...offers.map((offer) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OffersCouponsScreen(
+                      fareAmount: _calculateFare(),
+                      zoneNumber: _selectedZoneNumber,
+                      appliedCoupon: offer['code'],
+                    ),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(offer['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Color(0xFF0F172A))),
-                        const SizedBox(height: 2),
-                        Text(offer['desc']!, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(6),
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFFFD5CE)),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1EE),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.local_offer, color: Color(0xFFEB4D37), size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(offer['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: Color(0xFF0F172A))),
+                          const SizedBox(height: 2),
+                          Text(offer['desc']!, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text('CODE: ${offer['code']}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFF0F172A))),
                           ),
-                          child: Text('CODE: ${offer['code']}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 0.8, color: Color(0xFF0F172A))),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    const Icon(Icons.chevron_right, color: Color(0xFF94A3B8), size: 20),
+                  ],
+                ),
               ),
             );
           }),
@@ -1110,56 +1115,262 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProfileTab() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Profile Header Card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFF1EE),
-                    shape: BoxShape.circle,
+          // Scenic Varanasi Header Banner
+          Stack(
+            children: [
+              Container(
+                height: 190,
+                width: double.infinity,
+                foregroundDecoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.15),
+                      Colors.black.withValues(alpha: 0.75),
+                    ],
                   ),
-                  child: const Icon(Icons.person, color: Color(0xFFEB4D37), size: 34),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: Image.asset(
+                  'assets/images/varanasi_profile_header.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => Container(
+                    color: const Color(0xFF0F172A),
+                    child: const Center(
+                      child: Icon(Icons.directions_boat_filled, color: Colors.white30, size: 50),
+                    ),
+                  ),
+                ),
+              ),
+              // Top-left Back Button to return to Home
+              Positioned(
+                left: 14,
+                top: 10,
+                child: GestureDetector(
+                  onTap: () => setState(() => _currentBottomNavIndex = 0),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.28),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 20,
+                right: 20,
+                bottom: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEB4D37),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'VARANASI WATERWAYS',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Passenger Profile',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                        );
+                        _loadMasterData();
+                      },
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.tune, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Profile Header Card (Tapping opens Settings)
+                GestureDetector(
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                    _loadMasterData();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(30),
+                          child: Image.asset(
+                            'assets/images/driver_avatar.jpg',
+                            width: 58,
+                            height: 58,
+                            fit: BoxFit.cover,
+                            errorBuilder: (ctx, err, stack) => Container(
+                              width: 58,
+                              height: 58,
+                              color: const Color(0xFFFFF1EE),
+                              child: const Icon(Icons.person, color: Color(0xFFEB4D37), size: 34),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _profileName,
+                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _profilePhone,
+                                style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                              ),
+                              Text(
+                                _profileEmail,
+                                style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Action Tiles matching user screenshot
+                _buildSettingsTile(
+                  icon: Icons.shield_outlined,
+                  title: 'Emergency SOS & Safety Guidelines',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SosEmergencyScreen()),
+                    );
+                  },
+                ),
+                _buildSettingsTile(
+                  icon: Icons.settings_outlined,
+                  title: 'Account Settings & Preferences',
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                    _loadMasterData();
+                  },
+                ),
+                _buildSettingsTile(
+                  icon: Icons.help_outline_rounded,
+                  title: 'Ghat Support & 24/7 Helpline',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const GhatSupportScreen()),
+                    );
+                  },
+                ),
+                _buildSettingsTile(
+                  icon: Icons.privacy_tip_outlined,
+                  title: 'Terms of Service & Privacy Policy',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LegalTermsScreen()),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Varanasi River Corridor Compliance info badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Rahul Sharma', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                      SizedBox(height: 2),
-                      Text('+91 98765 43210', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
-                      Text('rahul.sharma@gmail.com', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                      Icon(Icons.verified, size: 16, color: Color(0xFF059669)),
+                      SizedBox(width: 8),
+                      Text(
+                        'Verified Passenger • Varanasi Ghat Corridor',
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(height: 20),
-
-          // Action Tiles
-          _buildSettingsTile(icon: Icons.shield_outlined, title: 'Emergency SOS & Safety Guidelines', onTap: () {}),
-          _buildSettingsTile(icon: Icons.language_outlined, title: 'Language (Hindi / English)', onTap: () {}),
-          _buildSettingsTile(icon: Icons.help_outline_rounded, title: 'Ghat Support & 24/7 Helpline', onTap: () {}),
-          _buildSettingsTile(icon: Icons.privacy_tip_outlined, title: 'Terms of Service & Privacy Policy', onTap: () {}),
         ],
       ),
     );
   }
+
 
   Widget _buildSettingsTile({required IconData icon, required String title, required VoidCallback onTap}) {
     return Container(

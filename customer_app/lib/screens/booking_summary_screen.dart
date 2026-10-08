@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'active_ride_screen.dart';
+import 'offers_coupons_screen.dart';
 
 class BookingSummaryScreen extends StatefulWidget {
   final Map<String, dynamic> selectedBoat;
@@ -39,79 +40,26 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   int get _baseFare => (widget.selectedBoat['price'] as int?) ?? 1200;
   int get _totalAmount => (_baseFare + _platformFee - _discountAmount).clamp(0, 999999);
 
-  void _showCouponDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Apply Promo Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: controller,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                  hintText: 'e.g. BANARAS10 or FIRSTNAAVI',
-                  filled: true,
-                  fillColor: const Color(0xFFF8FAFC),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFFEB4D37), width: 1.5),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Available coupons:\n• BANARAS10 (₹100 OFF)\n• FIRSTNAAVI (₹50 OFF)',
-                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEB4D37),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onPressed: () {
-                final code = controller.text.trim().toUpperCase();
-                if (code == 'BANARAS10') {
-                  setState(() {
-                    _appliedCoupon = 'BANARAS10';
-                    _discountAmount = 100;
-                  });
-                  Navigator.pop(ctx);
-                } else if (code == 'FIRSTNAAVI') {
-                  setState(() {
-                    _appliedCoupon = 'FIRSTNAAVI';
-                    _discountAmount = 50;
-                  });
-                  Navigator.pop(ctx);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invalid coupon code'), backgroundColor: Colors.redAccent),
-                  );
-                }
-              },
-              child: const Text('Apply'),
-            ),
-          ],
-        );
-      },
+  void _openOffersScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OffersCouponsScreen(
+          fareAmount: _baseFare + _platformFee,
+          zoneNumber: widget.zoneNumber,
+          appliedCoupon: _appliedCoupon,
+        ),
+      ),
     );
+
+    if (result != null && result is Map<String, dynamic> && mounted) {
+      setState(() {
+        _appliedCoupon = result['code'];
+        _discountAmount = (result['discountAmount'] as num?)?.toInt() ?? 0;
+      });
+    }
   }
+
 
   void _handleConfirmBooking() async {
     setState(() => _isBookingLoading = true);
@@ -141,6 +89,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               bookingCode: bookingData['bookingCode'] ?? 'NV-9912',
               ghatName: widget.ghatName,
               fare: _totalAmount,
+              boatName: widget.selectedBoat['name'] ?? 'Motor Boat',
+              boatNumber: bookingData['boatId']?['customBoatId'] ?? 'UPB-1024',
+              passengers: widget.passengers,
+              tripDuration: widget.selectedBoat['durationText'] ?? 'Full Trip (2 hrs)',
             ),
           ),
         );
@@ -291,9 +243,71 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 ),
               ),
 
+              const SizedBox(height: 20),
+
+              // 2. Offers & Promo Code Action Card
+              GestureDetector(
+                onTap: _openOffersScreen,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF1EE),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFFFD5CE)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.local_offer, color: Color(0xFFEB4D37), size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _appliedCoupon != null ? 'Promo Code: $_appliedCoupon' : 'Apply Offers & Coupons',
+                              style: const TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _appliedCoupon != null
+                                  ? '🎉 You saved ₹$_discountAmount with this offer!'
+                                  : 'Tap to view 50% discount and special offers',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: _appliedCoupon != null ? const Color(0xFF059669) : const Color(0xFF64748B),
+                                fontWeight: _appliedCoupon != null ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Color(0xFFEB4D37)),
+                    ],
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 24),
 
-              // 2. Fare Details Section
+              // 3. Fare Details Section
               const Text(
                 'Fare Details',
                 style: TextStyle(
@@ -339,7 +353,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          onTap: _showCouponDialog,
+                          onTap: _openOffersScreen,
                           child: Text(
                             _appliedCoupon != null ? 'Coupon ($_appliedCoupon) Applied' : 'Have a Coupon Code?',
                             style: const TextStyle(
@@ -359,6 +373,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         ),
                       ],
                     ),
+
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 14),

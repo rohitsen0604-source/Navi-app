@@ -120,16 +120,37 @@ class _LocationZoneScreenState extends State<LocationZoneScreen> {
                         children: [
                           const SizedBox(height: 12),
 
-                          // 1. Top Location Header Card
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFC),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
-                            ),
-                            child: Row(
-                              children: [
+                          // 1. Top Header with Back Button & Location Card
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Container(
+                                  width: 42,
+                                  height: 42,
+                                  margin: const EdgeInsets.only(right: 12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                  ),
+                                  child: const Icon(Icons.arrow_back, color: Color(0xFF0F172A), size: 20),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                  ),
+                                  child: Row(
+                                    children: [
                                 Container(
                                   width: 36,
                                   height: 36,
@@ -177,6 +198,9 @@ class _LocationZoneScreenState extends State<LocationZoneScreen> {
                               ],
                             ),
                           ),
+                        ),
+                      ],
+                    ),
 
                           const SizedBox(height: 16),
 
