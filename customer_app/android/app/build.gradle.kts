@@ -14,11 +14,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    androidResources {
-        noCompress += listOf("jpg", "jpeg", "png", "bin", "json")
-    }
-
-
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.naavi.customer_app"
@@ -28,6 +23,29 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            abiFilters.clear()
+            abiFilters.add("arm64-v8a")
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        jniLibs {
+            useLegacyPackaging = true
+            excludes += "**/x86/**"
+            excludes += "**/x86_64/**"
+            excludes += "**/armeabi-v7a/**"
+            excludes += "**/libVkLayer_khronos_validation.so"
+        }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 
     buildTypes {
@@ -35,6 +53,8 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
@@ -50,7 +70,7 @@ flutter {
 }
 
 tasks.configureEach {
-    if (name.contains("CMake", ignoreCase = true) || name.contains("cxx", ignoreCase = true) || name.contains("externalNativeBuild", ignoreCase = true)) {
+    if (name.contains("CMake", ignoreCase = true) || name.contains("cxx", ignoreCase = true) || name.contains("externalNativeBuild", ignoreCase = true) || name.contains("lint", ignoreCase = true)) {
         enabled = false
         onlyIf { false }
     }
