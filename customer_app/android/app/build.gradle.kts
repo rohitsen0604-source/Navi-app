@@ -14,6 +14,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    androidResources {
+        noCompress += listOf("jpg", "jpeg", "png", "bin", "json")
+    }
+
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.naavi.customer_app"
@@ -43,3 +48,11 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+tasks.configureEach {
+    if (name.contains("CMake", ignoreCase = true) || name.contains("cxx", ignoreCase = true) || name.contains("externalNativeBuild", ignoreCase = true)) {
+        enabled = false
+        onlyIf { false }
+    }
+}
+
