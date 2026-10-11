@@ -1,3 +1,5 @@
+import 'chat_support_screen.dart';
+import 'schedule_booking_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'available_boats_screen.dart';
@@ -366,6 +368,21 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedGhatName = _ghats[0]['name'];
     }
 
+    if (bookingType == 'BOOK_LATER') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ScheduleBookingScreen(
+            initialZoneNumber: _selectedZoneNumber,
+            initialGhatId: _selectedGhatId,
+            initialGhatName: _selectedGhatName,
+            initialBoatCategory: _selectedCategory,
+          ),
+        ),
+      );
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -394,6 +411,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
+      floatingActionButton: _currentBottomNavIndex == 0
+          ? FloatingActionButton.extended(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ChatSupportScreen()),
+              ),
+              backgroundColor: const Color(0xFF0F172A),
+              foregroundColor: Colors.white,
+              elevation: 4,
+              icon: const Icon(Icons.support_agent_rounded, color: Color(0xFFEB4D37)),
+              label: const Text(
+                'Ganga Assistant',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+            )
+          : null,
       body: SafeArea(
         child: _buildCurrentTab(),
       ),

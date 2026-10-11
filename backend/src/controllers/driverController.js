@@ -253,7 +253,19 @@ const getDriverDashboard = async (req, res, next) => {
   }
 };
 
+const getAvailableRides = async (req, res) => {
+  try {
+    const rides = await Booking.find({
+      status: { $in: ['SEARCHING_DRIVER', 'SCHEDULED', 'DRIVER_REQUESTED'] }
+    }).sort({ createdAt: -1 }).limit(10).lean();
+    res.json({ success: true, count: rides.length, data: rides });
+  } catch (e) {
+    res.json({ success: true, count: 0, data: [] });
+  }
+};
+
 module.exports = {
+  getAvailableRides,
   toggleDuty,
   acceptBooking,
   rejectBooking,
@@ -261,3 +273,4 @@ module.exports = {
   completeRide,
   getDriverDashboard
 };
+

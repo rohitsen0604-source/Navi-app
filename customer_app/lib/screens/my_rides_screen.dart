@@ -1,3 +1,4 @@
+import 'trip_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/api_service.dart';
@@ -512,8 +513,21 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     final fare = ride['fareAmount'] ?? 1150;
     final image = ride['boatImage'] ?? (boatName.toString().contains('Row') ? 'assets/images/boat_history_fresh.jpg' : boatName.toString().contains('Premium') ? 'assets/images/boat_premium.jpg' : 'assets/images/boat_motor_fresh.jpg');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+    return InkWell(
+      onTap: () async {
+        final res = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TripDetailsScreen(booking: ride),
+          ),
+        );
+        if (res != null) {
+          _loadRides();
+        }
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -694,6 +708,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }

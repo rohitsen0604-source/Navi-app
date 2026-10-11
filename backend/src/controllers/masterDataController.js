@@ -218,9 +218,16 @@ const getAvailableBoats = async (req, res, next) => {
 
     const filter = { status: 'AVAILABLE', isActive: true };
     if (zoneNumber) filter.zoneNumber = Number(zoneNumber);
-    if (category) filter.category = category;
+    if (category && category !== 'ALL') filter.category = category;
+    if (tag && tag !== 'All') filter.filterTag = tag;
 
-    const boats = await Boat.find(filter).populate('assignedDriverId', 'name phone rating');
+    let boats = await Boat.find(filter).populate('assignedDriverId', 'name phone rating avatar');
+    if (boats.length === 0 && zoneNumber) {
+      const fallbackFilter = { status: 'AVAILABLE', isActive: true };
+      if (tag && tag !== 'All') fallbackFilter.filterTag = tag;
+      boats = await Boat.find(fallbackFilter).populate('assignedDriverId', 'name phone rating avatar');
+    }
+
     res.json({ success: true, count: boats.length, data: boats });
   } catch (error) {
     next(error);

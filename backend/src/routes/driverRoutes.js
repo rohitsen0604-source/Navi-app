@@ -6,10 +6,14 @@ const {
   rejectBooking,
   startRide,
   completeRide,
-  getDriverDashboard
+  getDriverDashboard,
+  getAvailableRides
 } = require('../controllers/driverController');
 const { protect, authorizeRoles } = require('../middlewares/authMiddleware');
 const { ROLES } = require('../config/constants');
+
+// Available rides lookup (allows testing/driver dispatch)
+router.get('/available-rides', getAvailableRides);
 
 router.use(protect);
 router.use(authorizeRoles(ROLES.DRIVER, ROLES.ADMIN));

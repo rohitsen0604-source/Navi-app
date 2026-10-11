@@ -1,3 +1,5 @@
+import 'payment_screen.dart';
+import 'legal_terms_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'active_ride_screen.dart';
@@ -62,6 +64,33 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
 
   void _handleConfirmBooking() async {
+    if (_selectedPaymentMode == 'ONLINE_PREPAID') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentScreen(
+            totalAmount: _totalAmount.toDouble(),
+            boatName: widget.selectedBoat['name'] ?? 'Motor Boat',
+            boatCategory: widget.selectedBoat['category'] ?? 'MOTOR_BOAT',
+            ghatName: widget.ghatName,
+            scheduledTimeText: widget.scheduledTimeText,
+            passengers: widget.passengers,
+            tripType: widget.tripType,
+            zoneNumber: widget.zoneNumber,
+            ghatId: widget.ghatId,
+            couponCode: _appliedCoupon,
+            discountAmount: _discountAmount,
+            extraBookingData: {
+              'bookingType': widget.bookingType,
+              'scheduledDateText': widget.scheduledTimeText.contains('|') ? widget.scheduledTimeText.split('|')[0].trim() : 'Today',
+              'timeSlotText': widget.scheduledTimeText,
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isBookingLoading = true);
 
     try {
@@ -461,7 +490,35 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         ),
                       ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
+              Center(
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text(
+                      'By confirming, you agree to Naavi ',
+                      style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LegalTermsScreen()),
+                      ),
+                      child: const Text(
+                        'Terms & Inland Safety Regulations',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: Color(0xFFEB4D37),
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

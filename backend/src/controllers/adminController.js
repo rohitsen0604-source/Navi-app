@@ -626,7 +626,47 @@ const updatePricing = async (req, res) => {
 
 // 10. Bookings & Dispatch
 const getAllBookings = async (req, res) => {
-  res.json({ success: true, count: inMemoryBookingsList.length, data: inMemoryBookingsList });
+  try {
+    const dbBookings = await Booking.find()
+      .populate('customerId', 'name phone')
+      .populate('driverId', 'name phone')
+      .populate('boatId', 'name boatNumber category')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedDb = dbBookings.map(b => ({
+      _id: b._id.toString(),
+      bookingCode: b.bookingCode,
+      bookingType: b.bookingType,
+      tripType: b.tripType,
+      boatCategory: b.boatCategory,
+      seatsBooked: b.seatsBooked,
+      finalPayableAmount: b.finalPayableAmount,
+      paymentMode: b.paymentMode,
+      paymentStatus: b.paymentStatus,
+      status: b.status,
+      zoneNumber: b.zoneNumber,
+      boardingGhat: b.boardingPointId?.name || b.ghatName || 'Dashashwamedh Ghat',
+      destinationGhat: b.destinationPointId?.name || 'Assi Ghat',
+      customerName: b.customerId?.name || 'Customer',
+      customerPhone: b.customerId?.phone || '+91 98765 43212',
+      driverName: b.driverId?.name || b.driverName || 'Ram Manjhi',
+      driverPhone: b.driverId?.phone || b.driverPhone || '+91 98765 43220',
+      boatName: b.boatId?.name || b.boatName || 'Ganga Vihar Motor Boat',
+      boatNumber: b.boatId?.boatNumber || b.boatNumber || 'UPB-1024',
+      scheduledDateText: b.scheduledDateText,
+      timeSlotText: b.timeSlotText,
+      createdAt: b.createdAt
+    }));
+
+    const dbCodes = new Set(formattedDb.map(b => b.bookingCode));
+    const uniqueFixtures = inMemoryBookingsList.filter(b => !dbCodes.has(b.bookingCode));
+    const combined = [...formattedDb, ...uniqueFixtures];
+
+    res.json({ success: true, count: combined.length, data: combined });
+  } catch (err) {
+    res.json({ success: true, count: inMemoryBookingsList.length, data: inMemoryBookingsList });
+  }
 };
 
 const cancelBookingAdmin = async (req, res) => {

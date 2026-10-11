@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const { BOAT_CATEGORIES } = require('../config/constants');
 
 const boatSchema = new mongoose.Schema({
@@ -23,10 +23,38 @@ const boatSchema = new mongoose.Schema({
     enum: Object.values(BOAT_CATEGORIES),
     required: true
   },
+  filterTag: {
+    type: String,
+    default: 'Motor Boat'
+  },
   capacity: {
     type: Number,
     required: true,
     min: 1
+  },
+  price: {
+    type: Number,
+    default: 1200
+  },
+  rating: {
+    type: Number,
+    default: 4.8
+  },
+  image: {
+    type: String,
+    default: 'assets/images/boat_motor.jpg'
+  },
+  durationText: {
+    type: String,
+    default: 'Full Trip (2 hrs)'
+  },
+  passengersText: {
+    type: String,
+    default: 'Up to 8 passengers'
+  },
+  description: {
+    type: String,
+    default: 'Reliable Varanasi Ganges vessel.'
   },
   zoneId: {
     type: mongoose.Schema.Types.ObjectId,

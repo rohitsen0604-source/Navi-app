@@ -1,3 +1,7 @@
+import 'complete_profile_screen.dart';
+import 'legal_terms_screen.dart';
+import 'chat_support_screen.dart';
+import 'ghat_support_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'login_screen.dart';
@@ -426,7 +430,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 16),
 
                     // User Profile Header Card
-                    Container(
+                    InkWell(
+                      onTap: () async {
+                        final res = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CompleteProfileScreen(
+                              phoneNumber: _userPhone,
+                              isEditingFromSettings: true,
+                            ),
+                          ),
+                        );
+                        if (res == true) _loadProfileData();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -494,6 +512,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Icon(Icons.chevron_right, color: Color(0xFF94A3B8), size: 22),
                         ],
                       ),
+                    ),
                     ),
 
                     const SizedBox(height: 16),
@@ -623,19 +642,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _buildSettingRow(
                             icon: Icons.description_outlined,
                             title: 'Terms & Conditions',
-                            onTap: () => _handleShowStaticDialog(
-                              'Terms & Conditions',
-                              '1. All boat journeys adhere to Varanasi Inland Waterways safety norms.\n2. Life jackets must be worn at all times while aboard.\n3. Fares are standardized as per official Ghat corridor rates.\n4. Cancellations up to 30 mins before trip start are eligible for 100% refund.',
-                            ),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalTermsScreen())),
                           ),
                           const Divider(height: 1, indent: 54, endIndent: 16, color: Color(0xFFF1F5F9)),
                           _buildSettingRow(
                             icon: Icons.security_outlined,
                             title: 'Privacy Policy',
-                            onTap: () => _handleShowStaticDialog(
-                              'Privacy Policy',
-                              'Naavi respects your privacy. Live GPS location is collected strictly during active river rides for passenger safety, SOS telemetry, and rescue operations.',
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalTermsScreen())),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Help, Assistant & Legal Section
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(color: Color(0xFFFFF1EE), shape: BoxShape.circle),
+                              child: const Icon(Icons.support_agent_rounded, color: Color(0xFFEB4D37), size: 20),
                             ),
+                            title: const Text('24/7 AI Ganga Assistant', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                            subtitle: const Text('Aarti timings, boat types & live support', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                            trailing: const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatSupportScreen())),
+                          ),
+                          const Divider(height: 1, indent: 56, endIndent: 16),
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(color: Color(0xFFF1F5F9), shape: BoxShape.circle),
+                              child: const Icon(Icons.policy_outlined, color: Color(0xFF0F172A), size: 20),
+                            ),
+                            title: const Text('Legal Terms & Waterways Safety', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                            subtitle: const Text('Passenger rights, insurance & cancellation', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                            trailing: const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalTermsScreen())),
+                          ),
+                          const Divider(height: 1, indent: 56, endIndent: 16),
+                          ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(color: Color(0xFFECFDF5), shape: BoxShape.circle),
+                              child: const Icon(Icons.phone_in_talk_outlined, color: Color(0xFF059669), size: 20),
+                            ),
+                            title: const Text('Ghat Helplines & Water Police', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                            subtitle: const Text('Emergency helplines and ticket desk', style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B))),
+                            trailing: const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GhatSupportScreen())),
                           ),
                         ],
                       ),

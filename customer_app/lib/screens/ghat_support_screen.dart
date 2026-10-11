@@ -1,3 +1,4 @@
+import 'chat_support_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/api_service.dart';
@@ -409,6 +410,63 @@ class _GhatSupportScreenState extends State<GhatSupportScreen> with SingleTicker
         ),
 
         const SizedBox(height: 16),
+
+        const SizedBox(height: 16),
+
+        // 24/7 AI Ganga Assistant Card
+        InkWell(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ChatSupportScreen()),
+          ),
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF1EE),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.support_agent_rounded, color: Color(0xFFEB4D37), size: 26),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '24/7 AI Ganga Assistant',
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF0F172A)),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Instant help for Aarti timings, fares, safety & refunds',
+                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: Color(0xFF94A3B8)),
+              ],
+            ),
+          ),
+        ),
 
         // Quick Hotline Grid
         Row(

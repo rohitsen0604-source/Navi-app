@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const { BOOKING_STATUS, BOOKING_TYPE, TRIP_TYPES, BOAT_CATEGORIES, PAYMENT_MODES, PAYMENT_STATUS } = require('../config/constants');
 
 const bookingSchema = new mongoose.Schema({
@@ -44,7 +44,7 @@ const bookingSchema = new mongoose.Schema({
   },
   bookingType: {
     type: String,
-    enum: Object.values(BOOKING_TYPE),
+    enum: [...Object.values(BOOKING_TYPE), 'SCHEDULED'],
     default: BOOKING_TYPE.BOOK_NOW
   },
   tripType: {
@@ -66,14 +66,26 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  scheduledDateText: {
+    type: String,
+    default: ''
+  },
+  timeSlotText: {
+    type: String,
+    default: ''
+  },
   status: {
     type: String,
-    enum: Object.values(BOOKING_STATUS),
+    enum: [...Object.values(BOOKING_STATUS), 'SCHEDULED'],
     default: BOOKING_STATUS.SEARCHING_DRIVER
   },
   fareAmount: {
     type: Number,
     required: true
+  },
+  couponCode: {
+    type: String,
+    default: ''
   },
   discountAmount: {
     type: Number,
@@ -105,6 +117,14 @@ const bookingSchema = new mongoose.Schema({
   refundAmount: {
     type: Number,
     default: 0
+  },
+  cancellationRefundPercentage: {
+    type: Number,
+    default: 0
+  },
+  cancellationPolicyText: {
+    type: String,
+    default: ''
   },
   sosTriggered: {
     type: Boolean,
