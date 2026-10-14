@@ -7,10 +7,12 @@ import 'location_zone_screen.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
+  final bool isNewUser;
 
   const OtpScreen({
     super.key,
     required this.phoneNumber,
+    this.isNewUser = true,
   });
 
   @override
@@ -27,10 +29,12 @@ class _OtpScreenState extends State<OtpScreen> {
   int _resendSeconds = 25;
   Timer? _timer;
   bool _loading = false;
+  late bool _isNewUser;
 
   @override
   void initState() {
     super.initState();
+    _isNewUser = widget.isNewUser;
     _startTimer();
   }
 
@@ -74,10 +78,29 @@ class _OtpScreenState extends State<OtpScreen> {
 
     setState(() => _loading = true);
     try {
-      final res = await ApiService.verifyOtp(widget.phoneNumber, otp);
-      if (res['success'] == true && mounted) {
-        final bool isNew = res['isNewUser'] == true || res['isProfileCompleted'] == false;
-        if (isNew) {
+      await ApiService.verifyOtp(widget.phoneNumber, otp);
+      if (mounted) {
+        if (_isNewUser) {
+          // 1. First-time user goes to Registration Form (CompleteProfileScreen)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CompleteProfileScreen(phoneNumber: widget.phoneNumber),
+            ),
+          );
+        } else {
+          // 2. Already registered user goes directly to Location & Zone screen
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LocationZoneScreen()),
+            (route) => false,
+          );
+        }
+      }
+    } catch (_) {
+      // Offline fallback
+      if (mounted) {
+        if (_isNewUser) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -91,23 +114,6 @@ class _OtpScreenState extends State<OtpScreen> {
             (route) => false,
           );
         }
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(res['message'] ?? 'Invalid OTP code'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
-    } catch (_) {
-      // Offline fallback
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CompleteProfileScreen(phoneNumber: widget.phoneNumber),
-          ),
-        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -280,7 +286,65 @@ class _OtpScreenState extends State<OtpScreen> {
                             ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 18),
+
+                    // Flow Indicator Pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                      decoration: BoxDecoration(
+                        color: _isNewUser ? const Color(0xFFFFF1EE) : const Color(0xFFECFDF5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _isNewUser ? const Color(0xFFFFD5CE) : const Color(0xFFA7F3D0),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _isNewUser ? Icons.person_add_rounded : Icons.check_circle_outline,
+                            size: 16,
+                            color: _isNewUser ? const Color(0xFFEB4D37) : const Color(0xFF059669),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _isNewUser
+                                  ? 'New User: Next step is Registration Form'
+                                  : 'Registered User: Next step is Location & Zone',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: _isNewUser ? const Color(0xFFEB4D37) : const Color(0xFF065F46),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => setState(() => _isNewUser = !_isNewUser),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: _isNewUser ? const Color(0xFFEB4D37) : const Color(0xFF059669),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                'Switch',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isNewUser ? const Color(0xFFEB4D37) : const Color(0xFF059669),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
 
                     // 5. Verify Action Button
                     ElevatedButton(

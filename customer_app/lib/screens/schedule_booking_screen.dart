@@ -510,15 +510,68 @@ class _ScheduleBookingScreenState extends State<ScheduleBookingScreen> {
                               );
                             }),
                           const Divider(height: 20, color: Color(0xFFF1F5F9)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Total Payable Estimate', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                              Text(
-                                '₹${_fareData?['finalPayableAmount'] ?? 1150}',
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFEB4D37)),
-                              ),
-                            ],
+                          Builder(
+                            builder: (context) {
+                              final total = (_fareData?['finalPayableAmount'] as num?)?.toDouble() ?? 1150.0;
+                              final advance20 = (total * 0.20).round();
+                              final balance80 = total.round() - advance20;
+                              return Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Total Estimated Fare', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF64748B))),
+                                      Text(
+                                        '₹${total.round()}',
+                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF1EE),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFFFFD5CC)),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Text('20% Advance Payable Today', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFFEB4D37))),
+                                            Text('Remaining 80% (₹$balance80) at ghat to rider', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                          ],
+                                        ),
+                                        Text('₹$advance20', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFFEB4D37))),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.info_outline, size: 14, color: Color(0xFF64748B)),
+                                        SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            'Captain details & Start Ride OTP will be sent 2 days prior to ride date.',
+                                            style: TextStyle(fontSize: 10.5, color: Color(0xFF475569), fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),

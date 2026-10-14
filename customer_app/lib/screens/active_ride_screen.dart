@@ -4,6 +4,7 @@ import '../core/constants.dart';
 import '../services/api_service.dart';
 import 'live_ride_screen.dart';
 import 'sos_emergency_screen.dart';
+import 'feedback_dialog.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   final String bookingId;
@@ -14,6 +15,7 @@ class ActiveRideScreen extends StatefulWidget {
   final String boatNumber;
   final int passengers;
   final String tripDuration;
+  final String rideOtp;
 
   const ActiveRideScreen({
     super.key,
@@ -25,6 +27,7 @@ class ActiveRideScreen extends StatefulWidget {
     this.boatNumber = 'UPB-1024',
     this.passengers = 2,
     this.tripDuration = 'Full Trip (2 hrs)',
+    this.rideOtp = '5821',
   });
 
   @override
@@ -277,6 +280,81 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // 1.5. Start Ride Confirmation OTP Card (Required by user)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD97706).withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFEF3C7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.key_rounded, color: Color(0xFFD97706), size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'START RIDE OTP (GIVE TO RIDER)',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                              color: Color(0xFFB45309),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.rideOtp,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 6.0,
+                              color: Color(0xFF92400E),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFECFDF5),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFA7F3D0)),
+                      ),
+                      child: const Text(
+                        '20% Advance Paid',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF059669),
+                        ),
                       ),
                     ),
                   ],
@@ -708,6 +786,32 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 onPressed: _triggerEmergencySOS,
+              ),
+
+              const SizedBox(height: 12),
+
+              // 7. Complete Trip & Feedback Button
+              ElevatedButton.icon(
+                icon: const Icon(Icons.star_rounded, size: 20, color: Colors.white),
+                label: const Text(
+                  'Complete Trip & Rate Rider',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  backgroundColor: const Color(0xFF0F172A),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                onPressed: () {
+                  FeedbackDialog.show(
+                    context: context,
+                    bookingId: widget.bookingId,
+                    driverName: _driverName,
+                    boatName: widget.boatName,
+                    ghatName: widget.ghatName,
+                  );
+                },
               ),
 
               const SizedBox(height: 20),

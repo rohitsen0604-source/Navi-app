@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'active_ride_screen.dart';
 import 'offers_coupons_screen.dart';
+import 'booking_confirmed_dialog.dart';
 
 class BookingSummaryScreen extends StatefulWidget {
   final Map<String, dynamic> selectedBoat;
@@ -110,20 +111,39 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
       if (mounted) {
         final bookingData = res['data'] ?? {};
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ActiveRideScreen(
-              bookingId: bookingData['_id'] ?? 'b_mock_1',
-              bookingCode: bookingData['bookingCode'] ?? 'NV-9912',
-              ghatName: widget.ghatName,
-              fare: _totalAmount,
-              boatName: widget.selectedBoat['name'] ?? 'Motor Boat',
-              boatNumber: bookingData['boatId']?['customBoatId'] ?? 'UPB-1024',
-              passengers: widget.passengers,
-              tripDuration: widget.selectedBoat['durationText'] ?? 'Full Trip (2 hrs)',
-            ),
-          ),
+        final bookingCode = bookingData['bookingCode'] ?? 'NV-9912';
+        final int advance = (_totalAmount * 0.20).round();
+        final int remaining = _totalAmount - advance;
+
+        await BookingConfirmedDialog.show(
+          context: context,
+          bookingCode: bookingCode,
+          ghatName: widget.ghatName,
+          boatName: widget.selectedBoat['name'] ?? 'Motor Boat',
+          totalFare: _totalAmount,
+          advancePaid: advance,
+          remainingFare: remaining,
+          rideOtp: '5821',
+          dateOrTimeText: 'Immediate Boarding',
+          isScheduled: false,
+          onActionPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ActiveRideScreen(
+                  bookingId: bookingData['_id'] ?? 'b_mock_1',
+                  bookingCode: bookingCode,
+                  ghatName: widget.ghatName,
+                  fare: _totalAmount,
+                  boatName: widget.selectedBoat['name'] ?? 'Motor Boat',
+                  boatNumber: bookingData['boatId']?['customBoatId'] ?? 'UPB-1024',
+                  passengers: widget.passengers,
+                  tripDuration: widget.selectedBoat['durationText'] ?? 'Full Trip (2 hrs)',
+                  rideOtp: '5821',
+                ),
+              ),
+            );
+          },
         );
       }
     } catch (e) {

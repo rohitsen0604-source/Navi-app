@@ -1,5 +1,6 @@
 import 'chat_support_screen.dart';
 import 'schedule_booking_screen.dart';
+import 'rider_search_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'available_boats_screen.dart';
@@ -383,16 +384,18 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    // Direct on-demand searching for Book Now (removes intermediate friction screens)
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AvailableBoatsScreen(
+        builder: (_) => RiderSearchScreen(
           zoneNumber: _selectedZoneNumber,
           ghatName: _selectedGhatName ?? 'Dashashwamedh Ghat',
           ghatId: _selectedGhatId ?? 'g1',
           passengers: _seats,
           tripType: _selectedTripType,
-          bookingType: bookingType,
+          boatCategory: _selectedCategory,
+          totalFare: _calculateFare(),
         ),
       ),
     );

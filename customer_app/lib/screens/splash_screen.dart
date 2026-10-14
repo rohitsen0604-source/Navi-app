@@ -10,54 +10,50 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-  Timer? _autoSlideTimer;
-
-  final List<Map<String, String>> _slides = [
-    {
-      'title': 'Discover the Beauty\nfrom the Water',
-      'subtitle': 'Rivers and lakes like never before',
-    },
-    {
-      'title': 'Sacred Ganges Aarti\n& Heritage Ghats',
-      'subtitle': 'Experience Varanasi from a calm perspective',
-    },
-    {
-      'title': 'Instant Ghat Booking\nwith Verified Boatmen',
-      'subtitle': 'Safe, transparent fares & instant confirmation',
-    },
-  ];
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  Timer? _navigationTimer;
+  late AnimationController _animController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _autoSlideTimer = Timer.periodic(const Duration(milliseconds: 3500), (timer) {
-      if (_currentPage < _slides.length - 1) {
-        _currentPage++;
-      } else {
-        _currentPage = 0;
-      }
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(
-          _currentPage,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
+
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutBack,
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeIn,
+    );
+
+    _animController.forward();
+
+    // Auto navigate to login after 2.6 seconds
+    _navigationTimer = Timer(const Duration(milliseconds: 2600), () {
+      if (mounted) {
+        _navigateToLogin();
       }
     });
   }
 
   @override
   void dispose() {
-    _autoSlideTimer?.cancel();
-    _pageController.dispose();
+    _navigationTimer?.cancel();
+    _animController.dispose();
     super.dispose();
   }
 
   void _navigateToLogin() {
-    _autoSlideTimer?.cancel();
+    _navigationTimer?.cancel();
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -65,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
-        transitionDuration: const Duration(milliseconds: 500),
+        transitionDuration: const Duration(milliseconds: 450),
       ),
     );
   }
@@ -78,226 +74,208 @@ class _SplashScreenState extends State<SplashScreen> {
     ));
 
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 0. Base Fallback Gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-              ),
-            ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        // Pure Naavi Vibrant Orange/Coral Gradient Background
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFEB4D37), // Naavi Sunrise Coral
+              Color(0xFFF97316), // Sunset Amber Orange
+              Color(0xFFEA580C), // Deep River Orange
+            ],
+            stops: [0.0, 0.55, 1.0],
           ),
-
-          // 1. Panoramic Varanasi Sunrise Wallpaper
-          Image.asset(
-            'assets/images/varanasi_splash_bg.jpg',
-            fit: BoxFit.cover,
-          ),
-
-          // 2. High-Contrast Vignette Overlays for Maximum Legibility
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withValues(alpha: 0.42),
-                  Colors.black.withValues(alpha: 0.10),
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.55),
-                  Colors.black.withValues(alpha: 0.88),
-                ],
-                stops: const [0.0, 0.20, 0.45, 0.74, 1.0],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-
-          // 3. Foreground Content
-          SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 36),
-
-                // Top: Circular Badge containing naavi_logo.png
-                Container(
-                  width: 96,
-                  height: 96,
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Subtle background ambient circular glows
+              Positioned(
+                top: -80,
+                right: -80,
+                child: Container(
+                  width: 260,
+                  height: 260,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFEB4D37), // Naavi Signature Coral Red
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.35),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      )
-                    ],
-                    border: Border.all(color: Colors.white, width: 3.5),
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/naavi_logo.png',
-                      fit: BoxFit.cover,
-                    ),
+                    color: Colors.white.withValues(alpha: 0.08),
                   ),
                 ),
-                const SizedBox(height: 14),
-
-                // Tagline Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              ),
+              Positioned(
+                bottom: -100,
+                left: -60,
+                child: Container(
+                  width: 300,
+                  height: 300,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.40),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.28),
-                      width: 1.0,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.20),
-                        blurRadius: 10,
-                      )
-                    ],
-                  ),
-                  child: const Text(
-                    'RIVER & LAKE BOAT BOOKING',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 2.2,
-                      color: Colors.white,
-                    ),
+                    shape: BoxShape.circle,
+                    color: Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
+              ),
 
-                const Spacer(),
-
-                // Bottom Carousel: Title & Subtitle with Crisp Pure White Harmony
-                SizedBox(
-                  height: 140,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() => _currentPage = index);
-                    },
-                    itemCount: _slides.length,
-                    itemBuilder: (context, index) {
-                      final slide = _slides[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              slide['title']!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 27,
-                                height: 1.25,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black87,
-                                    offset: Offset(0, 2),
-                                    blurRadius: 14,
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              slide['subtitle']!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.90),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.2,
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.black87,
-                                    offset: Offset(0, 1),
-                                    blurRadius: 10,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Pill Carousel Indicator (— • •) in Crisp White
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_slides.length, (index) {
-                    final isActive = _currentPage == index;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      height: 4,
-                      width: isActive ? 28 : 10,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.40),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
-                ),
-
-                const SizedBox(height: 28),
-
-                // "Get Started" Action Button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF0F172A),
-                      minimumSize: const Size.fromHeight(52),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 8,
-                      shadowColor: Colors.black45,
-                    ),
-                    onPressed: _navigateToLogin,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+              // Centered Brand Content
+              Center(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          'Get Started',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
+                        // Centered Naavi Logo with Glowing White Container
+                        Container(
+                          width: 120,
+                          height: 120,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.18),
+                                blurRadius: 30,
+                                offset: const Offset(0, 10),
+                              ),
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.35),
+                                blurRadius: 20,
+                                spreadRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/naavi_logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => const Icon(
+                                Icons.directions_boat_rounded,
+                                size: 56,
+                                color: Color(0xFFEB4D37),
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, size: 18),
+
+                        const SizedBox(height: 22),
+
+                        // App Name
+                        const Text(
+                          'Naavi',
+                          style: TextStyle(
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 3),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Tagline Pill Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.40),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: const Text(
+                            'RIVER & LAKE BOAT BOOKING',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 2.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Subtitle
+                        Text(
+                          'Sacred Ghats & Waterways Transit',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.92),
+                            letterSpacing: 0.2,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
+              ),
 
-                const SizedBox(height: 24),
-              ],
-            ),
+              // Bottom "Get Started" / Skip button & Loading indicator
+              Positioned(
+                bottom: 30,
+                left: 24,
+                right: 24,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFFEB4D37),
+                        minimumSize: const Size.fromHeight(52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 6,
+                        shadowColor: Colors.black26,
+                      ),
+                      onPressed: _navigateToLogin,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Get Started',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward_rounded, size: 20),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Varanasi • Prayagraj • Rishikesh',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Colors.white.withValues(alpha: 0.80),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

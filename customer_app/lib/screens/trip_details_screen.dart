@@ -5,6 +5,7 @@ import 'chat_support_screen.dart';
 import 'ride_completed_screen.dart';
 import 'share_ride_screen.dart';
 import 'sos_emergency_screen.dart';
+import 'feedback_dialog.dart';
 
 class TripDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
@@ -37,11 +38,14 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   String get _dateTimeText => _booking['dateTimeText'] ?? _booking['scheduledTimeText'] ?? 'Today | 05:30 PM';
   String get _passengersText => _booking['passengersText'] ?? '${_booking['passengers'] ?? 2} Passengers';
   int get _passengers => (_booking['passengers'] as num?)?.toInt() ?? 2;
-  double get _fareAmount => (_booking['fareAmount'] as num?)?.toDouble() ?? (_booking['finalPayableAmount'] as num?)?.toDouble() ?? 2050.0;
-  String get _driverName => _booking['driverName'] ?? 'Ram Manjhi';
+  String get _driverName => _booking['driverName'] ?? 'Ramesh Manjhi';
   String get _driverPhone => _booking['driverPhone'] ?? '+91 98765 43220';
   String get _paymentMode => _booking['paymentMode'] ?? 'ONLINE_PREPAID';
   String get _tripType => _booking['tripType'] ?? 'FULL_TRIP';
+  String get _rideOtp => _booking['rideOtp'] ?? '7394';
+  bool get _isScheduled => _booking['isScheduled'] == true || _status == 'SCHEDULED';
+
+  bool _notificationReceived = false;
 
   bool get _isCompleted => _status == 'RIDE_COMPLETED' || _status == 'COMPLETED';
   bool get _isCancelled => _status == 'CANCELLED';
@@ -353,100 +357,239 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
 
               const SizedBox(height: 16),
 
-              // 3. Boat & Boatman Card
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+              // 3. Boat & Boatman Card / 2-Day Prior Notification Gate
+              if (_isScheduled && !_notificationReceived) ...[
+                // Notification Pending State (Per user specification: rider details arrive 2 days before)
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF2563EB),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.notifications_active_rounded, color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Rider Details & OTP Locked',
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1E3A8A)),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Per waterways rules, captain details & Start Ride OTP are dispatched 2 days prior to your travel date.',
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF1E40AF), height: 1.3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      // Interactive Simulation Button so the user can test immediately!
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(44),
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                        onPressed: () {
+                          setState(() => _notificationReceived = true);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('🔔 Notification: Your ride is in 2 days! Captain $_driverName assigned. Ride OTP: $_rideOtp'),
+                              backgroundColor: const Color(0xFF10B981),
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 4),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.alarm_on, size: 18),
+                        label: const Text(
+                          'Simulate 2-Days Prior Notification',
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Vessel & Boatman Details',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF1EE),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(Icons.directions_boat, color: Color(0xFFEB4D37), size: 28),
+              ] else ...[
+                // Unlocked Rider Details & Start Ride Confirmation OTP Card
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFFDE68A), width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFEF3C7),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _boatName,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                        child: const Icon(Icons.key_rounded, color: Color(0xFFD97706), size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'START RIDE OTP (GIVE TO RIDER)',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.8,
+                                color: Color(0xFFB45309),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Reg: $_boatNumber • Life Jackets Certified',
-                                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                            ),
+                            Text(
+                              _rideOtp,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 6,
+                                color: Color(0xFF92400E),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const Divider(height: 22, color: Color(0xFFF1F5F9)),
-                    Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Color(0xFFE2E8F0),
-                          child: Icon(Icons.person, color: Color(0xFF64748B)),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _driverName,
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                              ),
-                              const Text(
-                                'Certified Varanasi Sailor • 4.9 ★',
-                                style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-                              ),
-                            ],
-                          ),
+                        child: const Text(
+                          '20% Paid',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.phone, color: Color(0xFF10B981)),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Calling $_driverName ($_driverPhone)...'),
-                                backgroundColor: const Color(0xFF10B981),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFFEB4D37)),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const ChatSupportScreen()),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+
+                const SizedBox(height: 14),
+
+                // Boat & Rider Card
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Assigned Vessel & Boatman',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1EE),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(Icons.directions_boat, color: Color(0xFFEB4D37), size: 28),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _boatName,
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Reg: $_boatNumber • Life Jackets Certified',
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 22, color: Color(0xFFF1F5F9)),
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              'assets/images/driver_avatar.jpg',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => const Icon(Icons.person, color: Color(0xFF64748B)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _driverName,
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
+                                ),
+                                const Text(
+                                  'Certified Varanasi Boatman • 4.9 ★',
+                                  style: TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.phone, color: Color(0xFF10B981)),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Calling $_driverName ($_driverPhone)...'),
+                                  backgroundColor: const Color(0xFF10B981),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFFEB4D37)),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const ChatSupportScreen()),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 16),
 
@@ -476,9 +619,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    _buildInvoiceRow('Total Amount', '₹${_fareAmount.toInt()}'),
+                    _buildInvoiceRow('Total Trip Fare', '₹${_fareAmount.toInt()}'),
+                    _buildInvoiceRow('20% Advance Paid', '₹${(_fareAmount * 0.20).toInt()} (Paid)'),
+                    _buildInvoiceRow('Remaining at Ghat (80%)', '₹${(_fareAmount * 0.80).toInt()}'),
                     _buildInvoiceRow('Payment Mode', _paymentMode == 'ONLINE_PREPAID' ? 'Online (Paid)' : 'Pay After Ride at Ghat'),
-                    _buildInvoiceRow('Payment Status', _isCancelled ? 'REFUNDED' : 'PAID'),
+                    _buildInvoiceRow('Booking Status', _isCancelled ? 'CANCELLED' : 'CONFIRMED'),
                   ],
                 ),
               ),
@@ -566,6 +711,27 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // Rate & Review Rider Action (Feedback Popup)
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    foregroundColor: const Color(0xFFEB4D37),
+                    side: const BorderSide(color: Color(0xFFEB4D37)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  onPressed: () {
+                    FeedbackDialog.show(
+                      context: context,
+                      bookingId: _bookingId,
+                      driverName: _driverName,
+                      boatName: _boatName,
+                      ghatName: _ghatName,
+                    );
+                  },
+                  icon: const Icon(Icons.star_outline_rounded, size: 20),
+                  label: const Text('Rate & Give Feedback to Rider', style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
 
                 // Cancel Ride Button
                 TextButton.icon(

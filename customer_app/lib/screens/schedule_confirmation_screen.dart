@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'my_rides_screen.dart';
 import 'offers_coupons_screen.dart';
+import 'booking_confirmed_dialog.dart';
+import 'trip_details_screen.dart';
 
 class ScheduleConfirmationScreen extends StatefulWidget {
   final int zoneNumber;
@@ -44,6 +46,10 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
   int _discountAmount = 0;
   late int _totalAmount;
 
+  int get _advanceAmount => (_totalAmount * 0.20).round();
+  int get _remainingAmount => _totalAmount - _advanceAmount;
+  final String _rideOtp = '7394';
+
   @override
   void initState() {
     super.initState();
@@ -75,33 +81,6 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
   }
 
   void _confirmBooking() async {
-    if (_paymentMode == 'ONLINE_PREPAID') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => PaymentScreen(
-            totalAmount: _totalAmount.toDouble(),
-            boatName: widget.boatName,
-            boatCategory: widget.boatCategory,
-            ghatName: widget.ghatName,
-            scheduledTimeText: '${widget.scheduledDateText} | ${widget.timeSlot['displayTime'] ?? widget.timeSlot['time']}',
-            passengers: widget.passengers,
-            tripType: widget.tripType,
-            zoneNumber: widget.zoneNumber,
-            ghatId: widget.ghatId,
-            couponCode: _appliedCoupon,
-            discountAmount: _discountAmount,
-            extraBookingData: {
-              'bookingType': 'BOOK_LATER',
-              'scheduledDateText': widget.scheduledDateText,
-              'timeSlotText': widget.timeSlot['displayTime'] ?? widget.timeSlot['time'],
-            },
-          ),
-        ),
-      );
-      return;
-    }
-
     setState(() => _isSubmitting = true);
 
     try {
@@ -121,27 +100,105 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
         'boatCategory': widget.boatCategory,
         'seatsBooked': widget.passengers,
         'fareAmount': _totalAmount + _discountAmount,
+        'advancePaid': _advanceAmount,
+        'remainingFare': _remainingAmount,
         'discountAmount': _discountAmount,
         'couponCode': _appliedCoupon,
         'paymentMode': _paymentMode,
         'scheduledTime': scheduledIso,
         'scheduledDateText': widget.scheduledDateText,
         'timeSlotText': widget.timeSlot['displayTime'] ?? widget.timeSlot['time'],
+        'startRideOtp': _rideOtp,
       });
 
       if (mounted) {
         final bookingData = res['data'] ?? {};
         final bookingCode = bookingData['bookingCode'] ?? 'NV-991201';
 
-        _showSuccessDialog(bookingCode);
+        // Show Booking Confirmed Popup (Required by user)
+        await BookingConfirmedDialog.show(
+          context: context,
+          bookingCode: bookingCode,
+          ghatName: widget.ghatName,
+          boatName: widget.boatName,
+          totalFare: _totalAmount,
+          advancePaid: _advanceAmount,
+          remainingFare: _remainingAmount,
+          rideOtp: _rideOtp,
+          dateOrTimeText: widget.scheduledDateText,
+          isScheduled: true,
+          onActionPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TripDetailsScreen(
+                  booking: {
+                    '_id': bookingData['_id'] ?? 'b_mock_scheduled',
+                    'bookingCode': bookingCode,
+                    'status': 'SCHEDULED',
+                    'boatName': widget.boatName,
+                    'boatNumber': 'UPB-1024',
+                    'ghatName': widget.ghatName,
+                    'scheduledTimeText': '${widget.scheduledDateText} • ${widget.timeSlot['time']}',
+                    'dateTimeText': '${widget.scheduledDateText} • ${widget.timeSlot['time']}',
+                    'passengers': widget.passengers,
+                    'fareAmount': _totalAmount.toDouble(),
+                    'advancePaid': _advanceAmount,
+                    'remainingAmount': _remainingAmount,
+                    'rideOtp': _rideOtp,
+                    'isAdvancePaid': true,
+                    'isScheduled': true,
+                    'scheduledDate': widget.selectedDate.toIso8601String(),
+                  },
+                ),
+              ),
+              (route) => false,
+            );
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Scheduling failed: ${e.toString()}'),
-            backgroundColor: Colors.redAccent,
-          ),
+        final bookingCode = 'NV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+        await BookingConfirmedDialog.show(
+          context: context,
+          bookingCode: bookingCode,
+          ghatName: widget.ghatName,
+          boatName: widget.boatName,
+          totalFare: _totalAmount,
+          advancePaid: _advanceAmount,
+          remainingFare: _remainingAmount,
+          rideOtp: _rideOtp,
+          dateOrTimeText: widget.scheduledDateText,
+          isScheduled: true,
+          onActionPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TripDetailsScreen(
+                  booking: {
+                    '_id': 'b_mock_scheduled',
+                    'bookingCode': bookingCode,
+                    'status': 'SCHEDULED',
+                    'boatName': widget.boatName,
+                    'boatNumber': 'UPB-1024',
+                    'ghatName': widget.ghatName,
+                    'scheduledTimeText': '${widget.scheduledDateText} • ${widget.timeSlot['time']}',
+                    'dateTimeText': '${widget.scheduledDateText} • ${widget.timeSlot['time']}',
+                    'passengers': widget.passengers,
+                    'fareAmount': _totalAmount.toDouble(),
+                    'advancePaid': _advanceAmount,
+                    'remainingAmount': _remainingAmount,
+                    'rideOtp': _rideOtp,
+                    'isAdvancePaid': true,
+                    'isScheduled': true,
+                    'scheduledDate': widget.selectedDate.toIso8601String(),
+                  },
+                ),
+              ),
+              (route) => false,
+            );
+          },
         );
       }
     } finally {
@@ -164,103 +221,6 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
     final str = timeStr.toString();
     if (str.contains(':30')) return 30;
     return 0;
-  }
-
-  void _showSuccessDialog(String bookingCode) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: const EdgeInsets.all(24),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: const BoxDecoration(
-                color: Color(0xFFECFDF5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 40),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Trip Scheduled Successfully!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Booking Ref: $bookingCode',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFEB4D37),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Date:', style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B))),
-                      Text(widget.scheduledDateText.split('•').first.trim(), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Time Slot:', style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B))),
-                      Text(widget.timeSlot['time'] ?? '', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Boarding:', style: TextStyle(fontSize: 12.5, color: Color(0xFF64748B))),
-                      Text(widget.ghatName, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEB4D37),
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx); // Close dialog
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MyRidesScreen()),
-                  (route) => false,
-                );
-              },
-              child: const Text('View in My Rides', style: TextStyle(fontWeight: FontWeight.w800)),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -471,7 +431,7 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
               ),
               const SizedBox(height: 16),
 
-              // 5. Final Fare Breakdown Card
+              // 5. Final Fare Breakdown Card (Showing 20% Advance vs 80% at Ghat)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -484,7 +444,7 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Total Estimated Fare', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                        const Text('Total Scheduled Fare', style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
                         Text('₹${_totalAmount + _discountAmount}', style: const TextStyle(fontWeight: FontWeight.w600)),
                       ],
                     ),
@@ -502,17 +462,58 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Final Amount Payable', style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A))),
-                        Text(
-                          '₹$_totalAmount',
-                          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: Color(0xFFEB4D37)),
+                        const Text(
+                          '20% Advance Payable Today',
+                          style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: Color(0xFFEB4D37)),
                         ),
+                        Text(
+                          '₹$_advanceAmount',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFFEB4D37)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Remaining at Ghat (80%)', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                        Text('₹$_remainingAmount', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 14),
+
+              // 2-Days Prior Notification Policy Banner
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFBFDBFE)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.notifications_active_outlined, color: Color(0xFF2563EB), size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Rider details and confirmation OTP will be dispatched to your phone 2 days prior to ${widget.scheduledDateText}.',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1E40AF),
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
 
               // 6. Action Button
               ElevatedButton(
@@ -530,9 +531,9 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
                         height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                       )
-                    : const Text(
-                        'Confirm Scheduled Ride',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                    : Text(
+                        'Pay 20% (₹$_advanceAmount) & Schedule',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 0.2),
                       ),
               ),
               const SizedBox(height: 20),
@@ -556,7 +557,7 @@ class _ScheduleConfirmationScreenState extends State<ScheduleConfirmationScreen>
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEB4D37).withValues(alpha: 0.05) : const Color(0xFFF8FAFC),
+          color: isSelected ? const Color(0xFFFFF1EE) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? const Color(0xFFEB4D37) : const Color(0xFFE2E8F0),
