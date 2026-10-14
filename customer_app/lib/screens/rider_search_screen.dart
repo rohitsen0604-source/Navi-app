@@ -866,7 +866,7 @@ class _RiderSearchScreenState extends State<RiderSearchScreen> with TickerProvid
                 setState(() {
                   _isCancelled = false;
                   _isSearching = true;
-                  _riderFound = false;
+                  _riderData = null;
                 });
                 _startRiderSearch();
               },

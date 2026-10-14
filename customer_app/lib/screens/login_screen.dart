@@ -254,6 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                  ),
                   const SizedBox(height: 18),
 
                   // User Status Selector (First-Time User vs Registered User)

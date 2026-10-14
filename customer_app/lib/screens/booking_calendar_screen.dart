@@ -109,9 +109,9 @@ class _BookingCalendarScreenState extends State<BookingCalendarScreen> {
               ),
               child: const Row(
                 children: [
-                  const Icon(Icons.calendar_month_outlined, color: Color(0xFFEB4D37), size: 20),
-                  const SizedBox(width: 10),
-                  const Expanded(
+                  Icon(Icons.calendar_month_outlined, color: Color(0xFFEB4D37), size: 20),
+                  SizedBox(width: 10),
+                  Expanded(
                     child: Text(
                       'Advance booking window: 1 Month timeline active for Varanasi Ganges waterways.',
                       style: TextStyle(

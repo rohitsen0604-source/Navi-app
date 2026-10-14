@@ -1,7 +1,5 @@
-import 'payment_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'my_rides_screen.dart';
 import 'offers_coupons_screen.dart';
 import 'booking_confirmed_dialog.dart';
 import 'trip_details_screen.dart';

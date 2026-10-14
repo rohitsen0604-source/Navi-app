@@ -44,6 +44,11 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   String get _tripType => _booking['tripType'] ?? 'FULL_TRIP';
   String get _rideOtp => _booking['rideOtp'] ?? '7394';
   bool get _isScheduled => _booking['isScheduled'] == true || _status == 'SCHEDULED';
+  double get _fareAmount =>
+      (_booking['fareAmount'] as num?)?.toDouble() ??
+      (_booking['totalFare'] as num?)?.toDouble() ??
+      (_booking['fare'] as num?)?.toDouble() ??
+      550.0;
 
   bool _notificationReceived = false;
 

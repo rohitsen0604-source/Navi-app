@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="naaviGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A00" />
+      <stop offset="60%" stop-color="#EB4D37" />
+      <stop offset="100%" stop-color="#C4311C" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Circular Brand Crest -->
+  <circle cx="32" cy="32" r="30" fill="url(#naaviGrad)" />
+  <circle cx="32" cy="32" r="28.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1.5" />
+
+  <!-- Boat Sails -->
+  <path d="M32 14 L32 33 L45 29 Z" fill="#FFFFFF" />
+  <path d="M30 18 L30 33 L20 30 Z" fill="#FFFFFF" opacity="0.88" />
+  
+  <!-- Mast -->
+  <rect x="30.5" y="13" width="2" height="21" rx="1" fill="#FFFFFF" />
+
+  <!-- Boat Hull -->
+  <path d="M15 35 C17 41 23 44 32 44 C41 44 47 41 49 35 L47 33 L17 33 Z" fill="#FFFFFF" />
+
+  <!-- Sacred River Ganga Waves -->
+  <path d="M13 47 C17 45.5 21 45.5 25 47 C29 48.5 33 48.5 37 47 C41 45.5 45 45.5 49 47 C50.5 47.5 51 47.8 51 47.8 C51 47.8 49.5 49.5 45 49 C41 48 37 48 33 49 C29 50 25 50 21 49 C16.5 48 13 47 13 47 Z" fill="#FFFFFF" opacity="0.85" />
+</svg>

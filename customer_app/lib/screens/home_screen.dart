@@ -3,7 +3,6 @@ import 'schedule_booking_screen.dart';
 import 'rider_search_screen.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'available_boats_screen.dart';
 import 'ghat_support_screen.dart';
 import 'legal_terms_screen.dart';
 import 'my_rides_screen.dart';
