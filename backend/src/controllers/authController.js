@@ -13,6 +13,21 @@ const generateToken = (id) => {
 // In-memory store fallback when MongoDB is not connected
 const inMemoryUsers = new Map();
 
+// Seed existing registered driver partner for immediate testing
+inMemoryUsers.set('9876543210', {
+  _id: 'user_ram_manjhi',
+  phone: '9876543210',
+  firstName: 'Ram',
+  lastName: 'Manjhi',
+  email: 'ram.manjhi@naaviwaterways.com',
+  role: ROLES.DRIVER,
+  isVerified: true,
+  isProfileCompleted: true,
+  dob: '15 Mar 1988',
+  gender: 'Male',
+  address: 'Dashashwamedh Ghat, Varanasi, Uttar Pradesh'
+});
+
 // Send OTP
 const sendOtp = async (req, res, next) => {
   try {
@@ -49,9 +64,10 @@ const verifyOtp = async (req, res, next) => {
     if (mongoose.connection.readyState !== 1) {
       let user = inMemoryUsers.get(phone);
       let isNewUser = false;
+      let isProfileCompleted = false;
 
       if (!user) {
-        // First time phone number
+        // First time phone number - brand new user
         user = {
           _id: `user_${Date.now()}`,
           phone,
@@ -64,14 +80,17 @@ const verifyOtp = async (req, res, next) => {
         };
         inMemoryUsers.set(phone, user);
         isNewUser = true;
+        isProfileCompleted = false;
       } else {
-        isNewUser = !user.firstName || user.firstName.trim() === '';
+        // Check if user has already completed profile
+        isProfileCompleted = !!user.isProfileCompleted && !!user.firstName && user.firstName.trim().length > 0;
+        isNewUser = !isProfileCompleted;
       }
 
-      const driverData = role === ROLES.DRIVER ? {
+      const driverData = (role === ROLES.DRIVER && isProfileCompleted) ? {
         _id: 'driver_mock_1',
         driverCode: 'DRV-1001',
-        name: 'Ram Manjhi',
+        name: `${user.firstName} ${user.lastName || ''}`.trim(),
         phone,
         operationalZoneNumber: 1,
         isDutyOn: true,
@@ -93,15 +112,16 @@ const verifyOtp = async (req, res, next) => {
         success: true,
         token,
         isNewUser,
-        isProfileCompleted: !isNewUser,
+        isProfileCompleted,
         user,
         driverData,
-        note: 'Operating with in-memory auth store (MongoDB offline)'
+        note: 'Operating with in-memory auth store'
       });
     }
 
     let user = await User.findOne({ phone });
     let isNewUser = false;
+    let isProfileCompleted = false;
 
     if (!user) {
       user = await User.create({
@@ -113,13 +133,19 @@ const verifyOtp = async (req, res, next) => {
         email: ''
       });
       isNewUser = true;
+      isProfileCompleted = false;
     } else {
-      isNewUser = !user.firstName || user.firstName.trim() === '';
+      isProfileCompleted = !!user.firstName && user.firstName.trim().length > 0;
+      isNewUser = !isProfileCompleted;
     }
 
     let driverData = null;
     if (user.role === ROLES.DRIVER) {
       driverData = await Driver.findOne({ userId: user._id }).populate('assignedBoatId');
+      if (!driverData || !driverData.name) {
+        isProfileCompleted = false;
+        isNewUser = true;
+      }
     }
 
     const token = generateToken(user._id);
@@ -128,7 +154,7 @@ const verifyOtp = async (req, res, next) => {
       success: true,
       token,
       isNewUser,
-      isProfileCompleted: !isNewUser,
+      isProfileCompleted,
       user,
       driverData
     });
@@ -377,6 +403,7 @@ module.exports = {
   requestChangePhone,
   adminLogin,
   adminResetPassword,
-  logout
+  logout,
+  inMemoryUsers
 };
 

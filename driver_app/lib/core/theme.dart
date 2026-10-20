@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primary = Color(0xFF0D9488); // Teal/Emerald maritime theme
-  static const Color primaryDark = Color(0xFF0F766E);
-  static const Color accent = Color(0xFFEB4D37); // Naavi Sunrise Coral
-  static const Color background = Color(0xFFF8FAFC);
+  static const Color primary = Color(0xFFEB4D37); // Naavi Sunrise Coral (Customer App Theme Match)
+  static const Color primaryDark = Color(0xFFD43823);
+  static const Color accent = Color(0xFFF97316); // Sunset Amber Accent
+  static const Color warmLight = Color(0xFFFFF1EE);
+  static const Color warmBorder = Color(0xFFFFD5CE);
+  static const Color background = Color(0xFFFAFAFA);
   static const Color surface = Colors.white;
   static const Color textPrimary = Color(0xFF0F172A);
   static const Color textSecondary = Color(0xFF64748B);
+  static const Color border = Color(0xFFE2E8F0);
+  static const Color danger = Color(0xFFEF4444);
+  static const Color success = Color(0xFF10B981);
 
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
         primary: primary,
@@ -34,13 +40,15 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: const Size.fromHeight(54),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
+          elevation: 0,
           textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 16.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.3,
           ),
         ),
       ),

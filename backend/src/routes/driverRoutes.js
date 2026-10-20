@@ -7,13 +7,24 @@ const {
   startRide,
   completeRide,
   getDriverDashboard,
-  getAvailableRides
+  getAvailableRides,
+  getDriverOnboardingConfig,
+  saveDriverProfile,
+  saveBoatDetails,
+  submitDriverKyc,
+  getDriverKycStatus
 } = require('../controllers/driverController');
 const { protect, authorizeRoles } = require('../middlewares/authMiddleware');
 const { ROLES } = require('../config/constants');
 
-// Available rides lookup (allows testing/driver dispatch)
+// Public onboarding config, profile creation, boat details, KYC & available rides lookup
+router.get('/onboarding', getDriverOnboardingConfig);
 router.get('/available-rides', getAvailableRides);
+router.post('/profile', saveDriverProfile);
+router.post('/boat-details', saveBoatDetails);
+router.post('/kyc-submit', submitDriverKyc);
+router.get('/kyc-status', getDriverKycStatus);
+
 
 router.use(protect);
 router.use(authorizeRoles(ROLES.DRIVER, ROLES.ADMIN));

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme.dart';
-import 'screens/driver_login_screen.dart';
+import 'screens/driver_splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +16,8 @@ class NaaviDriverApp extends StatelessWidget {
       title: 'Naavi Boatman Partner',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const DriverLoginScreen(),
+      home: const DriverSplashScreen(),
     );
   }
 }
+
