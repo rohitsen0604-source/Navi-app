@@ -5,6 +5,8 @@ import '../services/api_service.dart';
 import 'live_ride_screen.dart';
 import 'sos_emergency_screen.dart';
 import 'feedback_dialog.dart';
+import 'ride_completed_screen.dart';
+import 'chat_support_screen.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   final String bookingId;
@@ -40,13 +42,23 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   Map<String, dynamic>? _bookingDetails;
   int _currentStepIndex = 1; // 0: Booking Confirmed, 1: Driver Assigned, 2: On the Way, 3: Ride Started, 4: Completed
 
-  final String _driverName = 'Ramesh Yadav';
-  final String _driverRating = '4.8 (320+ rides)';
-  final String _driverPhone = '+91 98765 43220';
+  late String _driverName;
+  late String _driverRating;
+  late String _driverPhone;
+  late String _boatName;
+  late String _boatNumber;
+  late String _rideOtp;
 
   @override
   void initState() {
     super.initState();
+    _driverName = 'Ram Manjhi';
+    _driverRating = '4.9 (120+ rides)';
+    _driverPhone = '+91 98765 43220';
+    _boatName = widget.boatName;
+    _boatNumber = widget.boatNumber;
+    _rideOtp = widget.rideOtp;
+
     _initSocket();
     _pollBooking();
   }
@@ -60,15 +72,38 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
 
       _socket?.onConnect((_) {
         _socket?.emit('join_customer_room', widget.bookingId);
+        _socket?.emit('join_booking_room', widget.bookingId);
       });
 
       _socket?.on('BOOKING_UPDATE', (data) {
         if (data != null && mounted) {
           setState(() {
             _status = data['status'] ?? _status;
+            if (data['driverName'] != null) _driverName = data['driverName'];
+            if (data['driverPhone'] != null) _driverPhone = data['driverPhone'];
+            if (data['boatName'] != null) _boatName = data['boatName'];
+            if (data['boatNumber'] != null) _boatNumber = data['boatNumber'];
+            if (data['rideOtp'] != null) _rideOtp = data['rideOtp'];
             _updateStepIndex(_status);
           });
-          _pollBooking();
+
+          if (_status == 'RIDE_COMPLETED' || _status == 'COMPLETED') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => RideCompletedScreen(
+                  bookingId: widget.bookingId,
+                  bookingCode: widget.bookingCode,
+                  ghatName: widget.ghatName,
+                  totalPaid: widget.fare,
+                  boatName: _boatName,
+                  boatNumber: _boatNumber,
+                  passengers: widget.passengers,
+                  tripDuration: widget.tripDuration,
+                ),
+              ),
+            );
+          }
         }
       });
     } catch (e) {
@@ -94,9 +129,15 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
     try {
       final res = await ApiService.getBooking(widget.bookingId);
       if (res['success'] == true && mounted) {
+        final data = res['data'];
         setState(() {
-          _bookingDetails = res['data'];
+          _bookingDetails = data;
           _status = _bookingDetails?['status'] ?? _status;
+          if (data?['driverName'] != null) _driverName = data['driverName'];
+          if (data?['driverPhone'] != null) _driverPhone = data['driverPhone'];
+          if (data?['boatName'] != null) _boatName = data['boatName'];
+          if (data?['boatNumber'] != null) _boatNumber = data['boatNumber'];
+          if (data?['startRideOtp'] != null) _rideOtp = data['startRideOtp'];
           _updateStepIndex(_status);
         });
       }
@@ -151,17 +192,25 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   void _handleDriverCall() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Calling Driver Ramesh Yadav ($_driverPhone)...'),
+        content: Row(
+          children: [
+            const Icon(Icons.phone_in_talk, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text('Calling Captain $_driverName ($_driverPhone)...'),
+          ],
+        ),
         backgroundColor: const Color(0xFF0F172A),
       ),
     );
   }
 
   void _handleDriverChat() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Opening chat with driver Ramesh Yadav...'),
-        backgroundColor: Color(0xFF0F172A),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatSupportScreen(
+          initialTopic: 'Namaste Captain $_driverName! I am at ${widget.ghatName}.',
+        ),
       ),
     );
   }
@@ -330,7 +379,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            widget.rideOtp,
+                            _rideOtp,
                             style: const TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
@@ -462,12 +511,12 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                         const Icon(Icons.directions_boat_outlined, size: 20, color: Color(0xFF0F172A)),
                         const SizedBox(width: 10),
                         Text(
-                          widget.boatName,
+                          _boatName,
                           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF0F172A)),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${widget.boatNumber}   |   Zone 1',
+                          '$_boatNumber   |   Zone 1',
                           style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
                         ),
                       ],

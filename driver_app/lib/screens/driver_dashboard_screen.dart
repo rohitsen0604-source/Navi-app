@@ -43,16 +43,19 @@ class _DriverDashboardScreenState extends State<DriverDashboardScreen> {
   }
 
   void _initSocket(String? driverId) {
-    if (driverId == null || _socket != null) return;
+    if (_socket != null) return;
+    final effectiveDriverId = driverId ?? _driverProfile?['_id'] ?? 'driver_mock_1';
 
     try {
       _socket = io.io(AppConstants.socketUrl, <String, dynamic>{
-        'transports': ['websocket'],
+        'transports': ['websocket', 'polling'],
         'autoConnect': true,
       });
 
       _socket?.onConnect((_) {
-        _socket?.emit('join_driver_room', driverId);
+        _socket?.emit('join_driver_room', effectiveDriverId);
+        _socket?.emit('join_driver_room', 'driver_mock_1');
+        _socket?.emit('join_driver_room', 'drv_1');
       });
 
       _socket?.on('NEW_BOOKING_REQUEST', (data) {

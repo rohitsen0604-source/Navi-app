@@ -21,7 +21,15 @@ import ReportsView from './views/ReportsView';
 import AuditView from './views/AuditView';
 import SettingsView from './views/SettingsView';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://navi-app-8vqo.onrender.com';
+const getSocketUrl = () => {
+  if (import.meta.env.VITE_SOCKET_URL) return import.meta.env.VITE_SOCKET_URL;
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5000';
+  }
+  return 'https://navi-app-8vqo.onrender.com';
+};
+
+const SOCKET_URL = getSocketUrl();
 
 export default function App() {
 
@@ -37,6 +45,7 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [isConnected, setIsConnected] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [liveNotification, setLiveNotification] = useState(null);
 
   // Core State
   const [stats, setStats] = useState(null);
@@ -151,12 +160,33 @@ export default function App() {
         setIsConnected(false);
       });
 
+      socket.on('NEW_BOOKING_ALERT', (payload) => {
+        setLiveNotification({
+          type: 'NEW_BOOKING',
+          title: `⚡ New Ride Request: ${payload.bookingCode || 'NV-New'}`,
+          desc: `Passenger ${payload.customerName || 'Tourist'} • ₹${payload.fareAmount || 1150} • Zone ${payload.zoneNumber || 1}`,
+          bookingId: payload.bookingId,
+          time: new Date().toLocaleTimeString()
+        });
+        loadData();
+      });
+
       socket.on('BOOKING_UPDATE', () => {
         loadData();
       });
 
+      socket.on('GLOBAL_BOOKING_UPDATE', () => {
+        loadData();
+      });
+
       socket.on('SOS_EMERGENCY_ALERT', (payload) => {
-        alert(`🚨 CRITICAL SOS ALERT: Booking ${payload.bookingCode || 'Emergency Triggered'}`);
+        setLiveNotification({
+          type: 'SOS',
+          title: `🚨 CRITICAL SOS ALERT: Booking ${payload.bookingCode || 'Emergency Triggered'}`,
+          desc: `Incident reported at Varanasi Waterways. Rescue units dispatched.`,
+          bookingId: payload.bookingId,
+          time: new Date().toLocaleTimeString()
+        });
         loadData();
       });
 
@@ -212,6 +242,64 @@ export default function App() {
         />
 
         <main className="content-area">
+          {/* Real-time Socket Live Notification Banner */}
+          {liveNotification && (
+            <div
+              style={{
+                marginBottom: 16,
+                padding: '12px 18px',
+                borderRadius: 12,
+                backgroundColor: liveNotification.type === 'SOS' ? '#FEF2F2' : '#F0FDF4',
+                border: `1.5px solid ${liveNotification.type === 'SOS' ? '#FCA5A5' : '#86EFAC'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 22 }}>{liveNotification.type === 'SOS' ? '🚨' : '⚡'}</span>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: liveNotification.type === 'SOS' ? '#991B1B' : '#166534' }}>
+                    {liveNotification.title}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: liveNotification.type === 'SOS' ? '#B91C1C' : '#15803D' }}>
+                    {liveNotification.desc} • <span style={{ opacity: 0.8 }}>{liveNotification.time}</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  onClick={() => setCurrentTab('bookings')}
+                  style={{
+                    backgroundColor: liveNotification.type === 'SOS' ? '#DC2626' : '#16A34A',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '6px 14px',
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: 'pointer'
+                  }}
+                >
+                  View in Dispatch
+                </button>
+                <button
+                  onClick={() => setLiveNotification(null)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#64748B',
+                    fontSize: 16,
+                    cursor: 'pointer',
+                    padding: '4px 8px'
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
           {currentTab === 'dashboard' && (
             <DashboardView
               stats={stats}

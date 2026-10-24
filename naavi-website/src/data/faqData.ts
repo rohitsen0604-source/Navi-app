@@ -6,69 +6,69 @@ export const faqData: FAQItem[] = [
     category: 'booking',
     categoryLabel: 'Booking & App Usage',
     question: 'How do I book a boat ride on Naavi?',
-    answer: 'You can book through the Naavi Customer App or directly via our 24/7 Ghat Operations Desks. Select your departure and arrival ghats from the 15 continuous Varanasi zones, choose your preferred boat category (Hand-Row, Motor Boat, Luxury Bajra, or EV Catamaran), and choose "Book Now" or "Book Later" up to 2 hours in advance.'
+    answer: 'You can book instantly through the Naavi web platform, the Naavi Mobile App, or in person at our Pier Station Desks. Simply select your pickup pier, your destination pier, choose your preferred boat category (Fast Motor Boat, Scenic Sunset Boat, Private Boat, or Eco Electric Boat), and confirm your reservation.'
   },
   {
     id: 'faq-2',
     category: 'pricing',
     categoryLabel: 'Pricing & Tariffs',
-    question: 'Are boat fares fixed, or do I need to bargain on the ghats?',
-    answer: 'Fares on Naavi are 100% transparent and standardized in strict adherence to Varanasi District Administration tariff charts. You will see the exact, final fare breakdown before confirming your ride. No boatman or agent is permitted to demand unmetered cash surcharges or tips.'
+    question: 'Are boat fares fixed, or do I need to bargain at the pier?',
+    answer: 'Fares on Naavi are 100% standardized, metered, and transparent. Just like modern cab apps (Uber/Rapido), you see the exact fare upfront before you book. No haggling, no unexpected surcharges, and no touts.'
   },
   {
     id: 'faq-3',
     category: 'safety',
     categoryLabel: 'Safety & Regulations',
     question: 'Is wearing a life jacket mandatory on all Naavi rides?',
-    answer: 'Yes, 100% life jacket compliance is strictly mandatory. Every motor boat, row boat, and luxury bajra carries certified life vests for all passengers including special child sizes. Trips will not depart until life jackets are secured.'
+    answer: 'Yes, 100% life jacket compliance is strictly mandatory. Every boat carries certified safety life jackets for every passenger, including child sizes. Boats are strictly prohibited from departing without all life jackets securely fastened.'
   },
   {
     id: 'faq-4',
     category: 'policy',
     categoryLabel: 'Policies & Hours',
-    question: 'What are the official boating hours on River Ganga in Varanasi?',
-    answer: 'Under Varanasi District Administration and Water Police guidelines, passenger boating is permitted daily from 05:00 AM to 09:30 PM. Night boating after 09:30 PM is strictly prohibited for river safety.'
+    question: 'What are the official operating hours?',
+    answer: 'Scheduled passenger boating operates daily from 05:30 AM to 10:30 PM. Private boat bookings and evening boat rides operate under designated local waterway permits.'
   },
   {
     id: 'faq-5',
     category: 'policy',
     categoryLabel: 'Cancellations & Refunds',
-    question: 'What happens if bad weather or high water cancels my ride?',
-    answer: 'Whenever the Varanasi District Magistrate or Water Police issues an adverse weather or high-discharge advisory, all boat departures in affected zones are instantly suspended and you receive a 100% automated refund to your original payment mode.'
+    question: 'What happens if adverse weather cancels my ride?',
+    answer: 'Whenever inland waterways authorities issue storm or high-current warnings, boat operations in affected areas are automatically paused and you receive an immediate 100% automated refund to your original payment method.'
   },
   {
     id: 'faq-6',
     category: 'policy',
     categoryLabel: 'Cancellations & Refunds',
-    question: 'Can I cancel my ride voluntarily?',
-    answer: 'Yes. Rides cancelled 30 minutes or more before the scheduled boarding time receive a full 100% refund without cancellation penalties. Detailed refund logs are available in your booking receipt.'
+    question: 'Can I cancel my booking if my plans change?',
+    answer: 'Yes. Rides cancelled 30 minutes or more prior to scheduled boarding time receive a full 100% refund without cancellation penalties. Detailed cancellation logs and instant receipts are provided in your app.'
   },
   {
     id: 'faq-7',
     category: 'ghats',
-    categoryLabel: 'Ghats & Locations',
-    question: 'Which ghats are covered under Naavi’s service area?',
-    answer: 'Naavi covers 15 continuous Ganges zones spanning 84 stone ghats from Assi Ghat and Sant Ravidas Ghat in the south to Dashashwamedh, Manikarnika, Rajghat, and the modern Namo Ghat terminal in the north.'
+    categoryLabel: 'Piers & Locations',
+    question: 'Which piers and waterfront terminals does Naavi serve?',
+    answer: 'Naavi operates across all major designated river piers, lake docks, and boarding steps. You can view all active piers, live boat availability, and nearest departure points directly on our interactive map.'
   },
   {
     id: 'faq-8',
     category: 'booking',
     categoryLabel: 'Booking & App Usage',
-    question: 'Can I charter an entire Luxury Bajra for family rituals or private events?',
-    answer: 'Yes! The Royal Heritage Bajra (up to 25 guests) is available for private charters. It features double decks, cushioned lounge seating, and an open rooftop observation terrace ideal for Ganga Aarti viewing and family ceremonies.'
+    question: 'Can I book an entire boat for private celebrations or family events?',
+    answer: 'Yes! Our Private Boat booking option offers exclusive full-boat hire. Choose from handcrafted wooden boats or spacious covered motor boats, complete with dedicated boat drivers and customized river routes.'
   },
   {
     id: 'faq-9',
     category: 'safety',
     categoryLabel: 'Safety & Regulations',
     question: 'How does Naavi handle emergency situations on the water?',
-    answer: 'Every ride is monitored via active GPS telemetry. The customer app has a prominent SOS emergency button that routes live river coordinates directly to our 24/7 Ghat Operations Command and the Varanasi Water Police (+91 542 2221234) for rapid speedboat interception.'
+    answer: 'Every boat is tracked via live GPS telemetry. Both the passenger app and driver app feature a one-tap SOS beacon that instantly alerts river rescue patrols and the national emergency response service (112) with your live coordinates.'
   },
   {
     id: 'faq-10',
-    category: 'ghats',
-    categoryLabel: 'Ghats & Locations',
-    question: 'Where can I find Naavi physical assistance desks on the ghats?',
-    answer: 'We operate physical assistance desks with stationed supervisors at Dashashwamedh Main Ghat (Platform #2, open 24 Hours), Assi Ghat South Terminal (04:00 AM – 11:30 PM), and Rajghat Heritage Pier (05:00 AM – 10:00 PM).'
+    category: 'pricing',
+    categoryLabel: 'Driver & Boat Owner Partnership',
+    question: 'How can boat owners and licensed drivers partner with Naavi?',
+    answer: 'Boat owners and licensed boat operators can register via the Naavi Driver Partner App. After passing boat safety inspection and driver credential verification, you can receive automated ride requests and grow your income transparently.'
   }
 ];

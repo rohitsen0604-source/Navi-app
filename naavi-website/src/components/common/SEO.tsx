@@ -6,11 +6,11 @@ interface SEOProps {
 }
 
 export const SEO: React.FC<SEOProps> = ({
-  title = 'Naavi – River & Lake Boat Booking & Operations Platform',
-  description = 'Discover and book verified river boat rides across 15 Varanasi Ganges Ghat zones with transparent fares and 100% life-jacket compliance.',
+  title = 'Naavi – On-Demand River & Lake Boat Booking App',
+  description = 'Book verified motor boats, scenic river rides, private family boats, and electric boats on demand with transparent fares and 100% life-jacket compliance.',
 }) => {
   useEffect(() => {
-    document.title = title.includes('Naavi') ? title : `${title} | Naavi River Platform`;
+    document.title = title.includes('Naavi') ? title : `${title} | Naavi Boat Booking`;
 
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

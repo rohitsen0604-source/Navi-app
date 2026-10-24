@@ -7,11 +7,12 @@ export type BoatCategory =
 
 export type ServiceCategory = 
   | 'ALL'
-  | 'SPIRITUAL_AARTI'
-  | 'SUNRISE_CRUISE'
-  | 'DAILY_TRANSIT'
+  | 'WATER_TAXI'
+  | 'SCENIC_RIDE'
   | 'PRIVATE_CHARTER'
-  | 'ECO_SOLAR';
+  | 'ECO_SOLAR'
+  | 'DAILY_TRANSIT'
+  | 'SUNRISE_RIDE';
 
 export interface BoatService {
   id: string;
@@ -26,28 +27,12 @@ export interface BoatService {
   estimatedPrice: string;
   isPriceFixed: boolean;
   popularGhats: string[];
+  popularPiers?: string[];
   image: string;
   badge?: string;
   features: string[];
 }
 
-export interface BoatFleetItem {
-  id: string;
-  name: string;
-  category: BoatCategory;
-  categoryLabel: string;
-  capacity: number;
-  propulsion: string;
-  pricePerTrip: string;
-  duration: string;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  description: string;
-  amenities: string[];
-  regPrefix: string;
-  recommendedFor: string;
-}
 
 export interface BoardingPoint {
   name: string;
@@ -64,16 +49,19 @@ export interface ZoneItem {
   code: string;
   adjacentZoneNumbers: number[];
   primaryGhat: string;
+  primaryPier?: string;
   image: string;
   description: string;
   isPopular: boolean;
   ghats: string[];
+  piers?: string[];
   highlights: string[];
 }
 
 export interface GhatDesk {
   id: string;
   ghatName: string;
+  pierName?: string;
   zone: string;
   location: string;
   supervisor: string;
@@ -81,6 +69,8 @@ export interface GhatDesk {
   timing: string;
   availableServices: string[];
 }
+
+export type PierDesk = GhatDesk;
 
 export interface FAQItem {
   id: string;
@@ -113,5 +103,6 @@ export interface SupportTicketResult {
   ticketId?: string;
   message: string;
   status?: string;
+  estimatedResolution?: string;
   estimatedResponse?: string;
 }

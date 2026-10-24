@@ -80,6 +80,7 @@ class _LiveRideScreenState extends State<LiveRideScreen> with SingleTickerProvid
 
       _socket?.onConnect((_) {
         _socket?.emit('join_customer_room', widget.bookingId);
+        _socket?.emit('join_booking_room', widget.bookingId);
       });
 
       _socket?.on('TELEMETRY_UPDATE', (data) {
@@ -89,6 +90,15 @@ class _LiveRideScreenState extends State<LiveRideScreen> with SingleTickerProvid
             _timeElapsedMinutes = data['timeElapsedMinutes'] ?? _timeElapsedMinutes;
             _timeRemainingMinutes = data['timeRemainingMinutes'] ?? _timeRemainingMinutes;
           });
+        }
+      });
+
+      _socket?.on('BOOKING_UPDATE', (data) {
+        if (data != null && mounted) {
+          final s = data['status'];
+          if (s == 'RIDE_COMPLETED' || s == 'COMPLETED') {
+            _handleCompleteRide();
+          }
         }
       });
 

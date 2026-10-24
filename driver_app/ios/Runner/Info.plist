@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Driver App</string>
+	<string>Naavi Captain</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -26,6 +26,51 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+	<!-- App Store Export Compliance -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
+	<!-- Location Permissions for River Navigation & Trip Tracking -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Naavi Captain requires location access to navigate Ganges Ghats and receive nearby passenger ride bookings.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Naavi Captain requires continuous background location during active river trips for passenger safety and waterway dispatch telemetry.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Continuous location is required to transmit live boat position to passengers and Varanasi water police during trips.</string>
+
+	<!-- Background Modes for Captain Navigation -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+
+	<!-- Camera and Photo Library for Captain KYC, Boat License & Inspection -->
+	<key>NSCameraUsageDescription</key>
+	<string>Naavi Captain requires camera access to take boat photos, upload inland waterway boat permits, and verify captain KYC.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Naavi Captain requires photo library access to upload captain license and boat registration certificates.</string>
+
+	<!-- App Transport Security for Local & Production API Connections -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+
+	<!-- Telephony & SMS URL Schemes for Contacting Passengers -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>sms</string>
+		<string>mailto</string>
+		<string>https</string>
+	</array>
+
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

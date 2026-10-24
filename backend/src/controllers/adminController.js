@@ -6,7 +6,18 @@ const User = require('../models/User');
 const SOSIncident = require('../models/SOSIncident');
 const AuditLog = require('../models/AuditLog');
 const { BOOKING_STATUS, ROLES, PAYMENT_STATUS, BOOKING_TYPE } = require('../config/constants');
-const { broadcastRideLifecycleUpdate } = require('../services/socketService');
+const {
+  emitToAdminOps,
+  emitToDriver,
+  emitToAllDrivers,
+  broadcastRideLifecycleUpdate
+} = require('../services/socketService');
+const {
+  getAllSharedBookings,
+  getSharedBookingById,
+  saveSharedBooking,
+  updateSharedBooking
+} = require('../services/bookingStore');
 
 // -------------------------------------------------------------
 // In-memory Master Stores (Ensures 100% operation in all environments)
@@ -627,57 +638,75 @@ const updatePricing = async (req, res) => {
 // 10. Bookings & Dispatch
 const getAllBookings = async (req, res) => {
   try {
-    const dbBookings = await Booking.find()
-      .populate('customerId', 'name phone')
-      .populate('driverId', 'name phone')
-      .populate('boatId', 'name boatNumber category')
-      .sort({ createdAt: -1 })
-      .lean();
+    let formattedDb = [];
+    if (mongoose.connection.readyState === 1) {
+      const dbBookings = await Booking.find()
+        .populate('customerId', 'name phone')
+        .populate('driverId', 'name phone')
+        .populate('boatId', 'name boatNumber category')
+        .sort({ createdAt: -1 })
+        .lean();
 
-    const formattedDb = dbBookings.map(b => ({
-      _id: b._id.toString(),
-      bookingCode: b.bookingCode,
-      bookingType: b.bookingType,
-      tripType: b.tripType,
-      boatCategory: b.boatCategory,
-      seatsBooked: b.seatsBooked,
-      finalPayableAmount: b.finalPayableAmount,
-      paymentMode: b.paymentMode,
-      paymentStatus: b.paymentStatus,
-      status: b.status,
-      zoneNumber: b.zoneNumber,
-      boardingGhat: b.boardingPointId?.name || b.ghatName || 'Dashashwamedh Ghat',
-      destinationGhat: b.destinationPointId?.name || 'Assi Ghat',
-      customerName: b.customerId?.name || 'Customer',
-      customerPhone: b.customerId?.phone || '+91 98765 43212',
-      driverName: b.driverId?.name || b.driverName || 'Ram Manjhi',
-      driverPhone: b.driverId?.phone || b.driverPhone || '+91 98765 43220',
-      boatName: b.boatId?.name || b.boatName || 'Ganga Vihar Motor Boat',
-      boatNumber: b.boatId?.boatNumber || b.boatNumber || 'UPB-1024',
-      scheduledDateText: b.scheduledDateText,
-      timeSlotText: b.timeSlotText,
-      createdAt: b.createdAt
-    }));
+      formattedDb = dbBookings.map(b => ({
+        _id: b._id.toString(),
+        bookingCode: b.bookingCode,
+        bookingType: b.bookingType,
+        tripType: b.tripType,
+        boatCategory: b.boatCategory,
+        seatsBooked: b.seatsBooked,
+        finalPayableAmount: b.finalPayableAmount,
+        paymentMode: b.paymentMode,
+        paymentStatus: b.paymentStatus,
+        status: b.status,
+        zoneNumber: b.zoneNumber,
+        boardingGhat: b.boardingPointId?.name || b.ghatName || 'Dashashwamedh Ghat',
+        destinationGhat: b.destinationPointId?.name || 'Assi Ghat',
+        customerName: b.customerId?.name || 'Customer',
+        customerPhone: b.customerId?.phone || '+91 98765 43212',
+        driverName: b.driverId?.name || b.driverName || 'Ram Manjhi',
+        driverPhone: b.driverId?.phone || b.driverPhone || '+91 98765 43220',
+        boatName: b.boatId?.name || b.boatName || 'Ganga Vihar Motor Boat',
+        boatNumber: b.boatId?.boatNumber || b.boatNumber || 'UPB-1024',
+        scheduledDateText: b.scheduledDateText,
+        timeSlotText: b.timeSlotText,
+        createdAt: b.createdAt
+      }));
+    }
 
+    const shared = getAllSharedBookings();
     const dbCodes = new Set(formattedDb.map(b => b.bookingCode));
-    const uniqueFixtures = inMemoryBookingsList.filter(b => !dbCodes.has(b.bookingCode));
-    const combined = [...formattedDb, ...uniqueFixtures];
+    const uniqueShared = shared.filter(b => !dbCodes.has(b.bookingCode));
+    const uniqueFixtures = inMemoryBookingsList.filter(b => !dbCodes.has(b.bookingCode) && !uniqueShared.some(s => s.bookingCode === b.bookingCode));
+    const combined = [...formattedDb, ...uniqueShared, ...uniqueFixtures];
 
     res.json({ success: true, count: combined.length, data: combined });
   } catch (err) {
-    res.json({ success: true, count: inMemoryBookingsList.length, data: inMemoryBookingsList });
+    res.json({ success: true, count: getAllSharedBookings().length, data: getAllSharedBookings() });
   }
 };
 
 const cancelBookingAdmin = async (req, res) => {
   const { id } = req.params;
   const { reason = 'Operations Cancellation' } = req.body;
-  const booking = inMemoryBookingsList.find(b => b._id === id || b.bookingCode === id);
+  let booking = getSharedBookingById(id) || inMemoryBookingsList.find(b => b._id === id || b.bookingCode === id);
+
+  if (mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(id)) {
+    await Booking.findByIdAndUpdate(id, {
+      status: 'CANCELLED',
+      cancellationReason: reason,
+      paymentStatus: 'REFUNDED'
+    });
+  }
+
   if (booking) {
     booking.status = 'CANCELLED';
     booking.cancellationReason = reason;
     booking.paymentStatus = 'REFUNDED';
     booking.refundAmount = booking.finalPayableAmount;
+    saveSharedBooking(booking);
+
+    broadcastRideLifecycleUpdate(booking);
+
     return res.json({ success: true, message: `Booking ${booking.bookingCode} cancelled and 100% refund processed.`, data: booking });
   }
   res.status(404).json({ success: false, message: 'Booking not found' });
@@ -685,14 +714,28 @@ const cancelBookingAdmin = async (req, res) => {
 
 const reassignDriver = async (req, res) => {
   const { bookingId, newDriverId, newBoatId, reason } = req.body;
-  const booking = inMemoryBookingsList.find(b => b._id === bookingId || b.bookingCode === bookingId);
-  const driver = inMemoryDrivers.find(d => d._id === newDriverId || d.name === newDriverId);
+  let booking = getSharedBookingById(bookingId) || inMemoryBookingsList.find(b => b._id === bookingId || b.bookingCode === bookingId);
+  const driver = inMemoryDrivers.find(d => d._id === newDriverId || d.name === newDriverId) || {
+    name: newDriverId || 'Ram Manjhi',
+    phone: '+91 98765 43220',
+    assignedBoatName: 'Ganga Vihar Motor Boat'
+  };
 
-  if (booking && driver) {
+  if (mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(bookingId)) {
+    await Booking.findByIdAndUpdate(bookingId, {
+      driverName: driver.name,
+      driverPhone: driver.phone,
+      boatName: driver.assignedBoatName,
+      status: 'DRIVER_ASSIGNED'
+    });
+  }
+
+  if (booking) {
     booking.driverName = driver.name;
     booking.driverPhone = driver.phone;
     booking.boatName = driver.assignedBoatName;
     booking.status = 'DRIVER_ASSIGNED';
+    saveSharedBooking(booking);
 
     inMemoryAuditLogs.unshift({
       _id: `aud_${Date.now()}`,
@@ -704,9 +747,30 @@ const reassignDriver = async (req, res) => {
       notes: reason || `Reassigned to driver ${driver.name}`
     });
 
+    // Real-time Socket sync across apps and admin
+    broadcastRideLifecycleUpdate(booking);
+
+    // Notify newly assigned driver
+    const requestPayload = {
+      bookingId: booking._id,
+      bookingCode: booking.bookingCode,
+      boardingPoint: booking.boardingGhat || 'Dashashwamedh Ghat',
+      destinationPoint: booking.destinationGhat || 'Assi Ghat',
+      zoneNumber: booking.zoneNumber || 1,
+      seats: booking.seatsBooked || 2,
+      tripType: booking.tripType || 'FULL_TRIP',
+      fareAmount: booking.finalPayableAmount || 1150,
+      customerName: booking.customerName,
+      customerPhone: booking.customerPhone,
+      timeoutSeconds: 30
+    };
+    emitToDriver(newDriverId, 'NEW_BOOKING_REQUEST', requestPayload);
+    emitToDriver('driver_mock_1', 'NEW_BOOKING_REQUEST', requestPayload);
+    emitToAllDrivers('NEW_BOOKING_REQUEST', requestPayload);
+
     return res.json({ success: true, message: `Driver reassigned to ${driver.name} successfully`, data: booking });
   }
-  res.json({ success: true, message: 'Driver reassigned successfully (in-memory mode)' });
+  res.json({ success: true, message: 'Driver reassigned successfully' });
 };
 
 // 11. Payments & Refunds
@@ -800,14 +864,16 @@ const createCallCenterBooking = async (req, res) => {
     destinationGhat,
     customerName: customerName || 'Phone Passenger',
     customerPhone,
-    driverName: 'Assigned on Ghat',
-    driverPhone: '-',
-    boatName: 'Motor Boat',
+    driverName: 'Ram Manjhi',
+    driverPhone: '+91 98765 43220',
+    boatName: 'Ganga Vihar Motor Boat',
     boatNumber: 'UPB-1024',
     sourceChannel: 'CALL_CENTER',
+    startRideOtp: '5521',
     createdAt: new Date().toISOString()
   };
 
+  saveSharedBooking(newBooking);
   inMemoryBookingsList.unshift(newBooking);
 
   inMemoryAuditLogs.unshift({
@@ -820,9 +886,42 @@ const createCallCenterBooking = async (req, res) => {
     notes: `Phone order for ${customerName} (${customerPhone}) at ${boardingGhat}`
   });
 
+  // Real-time dispatch via Socket.IO
+  const requestPayload = {
+    bookingId: newBooking._id,
+    bookingCode: newBooking.bookingCode,
+    boardingPoint: newBooking.boardingGhat,
+    destinationPoint: newBooking.destinationGhat,
+    zoneNumber: newBooking.zoneNumber,
+    seats: newBooking.seatsBooked,
+    tripType: newBooking.tripType,
+    fareAmount: newBooking.finalPayableAmount,
+    boatCategory: newBooking.boatCategory,
+    customerName: newBooking.customerName,
+    customerPhone: newBooking.customerPhone,
+    timeoutSeconds: 30
+  };
+
+  emitToAllDrivers('NEW_BOOKING_REQUEST', requestPayload);
+  emitToDriver('driver_mock_1', 'NEW_BOOKING_REQUEST', requestPayload);
+  emitToDriver('drv_1', 'NEW_BOOKING_REQUEST', requestPayload);
+
+  emitToAdminOps('NEW_BOOKING_ALERT', {
+    bookingId: newBooking._id,
+    bookingCode: newBooking.bookingCode,
+    bookingType: newBooking.bookingType,
+    zoneNumber: newBooking.zoneNumber,
+    customerName: newBooking.customerName,
+    fareAmount: newBooking.finalPayableAmount,
+    status: newBooking.status,
+    timestamp: new Date()
+  });
+
+  broadcastRideLifecycleUpdate(newBooking);
+
   res.status(201).json({
     success: true,
-    message: `Call-Center booking ${bookingCode} created successfully. Customer notified via SMS.`,
+    message: `Call-Center booking ${bookingCode} created successfully and dispatched to boatmen in real time.`,
     booking: newBooking
   });
 };

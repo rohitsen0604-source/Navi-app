@@ -4,7 +4,7 @@ import { EmergencyBanner } from '../common/EmergencyBanner';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { Modal } from '../ui/Modal';
-import { Smartphone, CheckCircle2, QrCode, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { Smartphone, QrCode, AlertCircle, ArrowUpRight } from 'lucide-react';
 import { siteConfig } from '../../config/siteConfig';
 import { Button } from '../ui/Button';
 
@@ -36,26 +36,26 @@ export const Layout: React.FC = () => {
         maxWidth="md"
       >
         <div className="space-y-5 text-center">
-          <div className="mx-auto w-16 h-16 rounded-3xl bg-[#FFF1EE] border border-[#FFD5CE] flex items-center justify-center text-[#EB4D37] shadow-sm">
-            <Smartphone className="w-8 h-8" />
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shadow-sm">
+            <Smartphone className="w-8 h-8 text-[#C5A059]" />
           </div>
 
           <div>
             <h4 className="text-xl font-bold text-slate-900">
-              Naavi Passenger & Boat Booking
+              Naavi Passenger & Captain App
             </h4>
-            <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">
-              Experience instant boat dispatch, GPS live ride status, SOS emergency button, and fair Varanasi Ghat tariffs right from your phone.
+            <p className="text-sm text-slate-600 mt-1.5 leading-relaxed font-normal">
+              Experience instant on-demand boat dispatch, GPS live ride tracking, live emergency SOS beacon, and transparent metered tariffs right from your phone.
             </p>
           </div>
 
-          {/* QR Code / Pilot Info Box */}
+          {/* QR Code / Demo Box */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col items-center gap-3">
             <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center">
               <QrCode className="w-28 h-28 text-slate-800" />
             </div>
             <div className="text-xs text-slate-500 font-medium">
-              Scan with your mobile camera to launch the web app or demo build
+              Scan with your mobile camera to test the on-demand booking preview
             </div>
           </div>
 
@@ -72,16 +72,16 @@ export const Layout: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col justify-between">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Android</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Android</span>
                   <div className="text-sm font-bold text-slate-800 mt-0.5">Google Play Store</div>
-                  <span className="text-[11px] text-amber-600 font-medium block mt-1">Pilot Testing in Varanasi</span>
+                  <span className="text-[11px] text-amber-600 font-medium block mt-1">Pre-Release Pilot</span>
                 </div>
                 <div className="mt-3">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs min-h-[44px]"
-                    onClick={() => alert('Naavi is currently in pilot testing with registered Varanasi boatmen and travelers. Public Play Store listing link will go live upon official launch.')}
+                    className="w-full text-xs min-h-[40px]"
+                    onClick={() => alert('Naavi mobile app is currently in active pilot testing. Public store link will go live upon general release.')}
                   >
                     <span>Check Release</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -91,27 +91,22 @@ export const Layout: React.FC = () => {
 
               <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col justify-between">
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">iOS</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">iOS</span>
                   <div className="text-sm font-bold text-slate-800 mt-0.5">Apple App Store</div>
-                  <span className="text-[11px] text-slate-500 font-medium block mt-1">TestFlight in Review</span>
+                  <span className="text-[11px] text-slate-500 font-medium block mt-1">TestFlight Build</span>
                 </div>
                 <div className="mt-3">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full text-xs bg-slate-100 min-h-[44px]"
+                    className="w-full text-xs min-h-[40px] text-slate-600"
                     disabled
                   >
-                    Coming Soon
+                    <span>Coming Soon</span>
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-emerald-700 font-medium">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Assisted phone bookings available via 24/7 Ghat Desks</span>
           </div>
         </div>
       </Modal>

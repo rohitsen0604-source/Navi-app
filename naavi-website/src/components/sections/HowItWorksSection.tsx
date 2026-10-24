@@ -1,89 +1,94 @@
 import React from 'react';
-import { Smartphone, MapPin, Anchor, CheckCircle2, Navigation, ShieldCheck } from 'lucide-react';
+import { MapPin, Anchor, Navigation, ShieldCheck } from 'lucide-react';
 import { Card } from '../ui/Card';
 
-export const HowItWorksSection: React.FC = () => {
+interface HowItWorksProps {
+  className?: string;
+  transparent?: boolean;
+  hideHeader?: boolean;
+}
+
+export const HowItWorksSection: React.FC<HowItWorksProps> = ({
+  className,
+  transparent = false,
+  hideHeader = false,
+}) => {
   const steps = [
     {
       num: '01',
-      title: 'Open the Naavi App',
-      desc: 'Launch the customer app or visit a 24/7 Ghat Desk. Quick mobile OTP login connects you instantly to the river ecosystem.',
-      icon: <Smartphone className="w-5 h-5 text-[#EB4D37]" />,
+      title: 'Choose Departure & Arrival Pier',
+      desc: 'Open the Naavi app or website. Enter your pickup pier, destination terminal, or select a scenic sunset tour with GPS precision.',
+      icon: <MapPin className="w-5 h-5 text-[#C5A059]" />,
     },
     {
       num: '02',
-      title: 'Choose Departure & Destination',
-      desc: 'Pick your boarding ghat from the 15 Varanasi zones (e.g., Assi Ghat, Dashashwamedh, or Namo Ghat) with clear GPS landmarks.',
-      icon: <MapPin className="w-5 h-5 text-[#FF7A00]" />,
+      title: 'Select Boat Type & View Fare',
+      desc: 'Pick your preferred ride: Fast Motor Boat, Scenic Sunset Boat, Private Boat, or Eco Electric Boat. See exact fixed fares upfront.',
+      icon: <Anchor className="w-5 h-5 text-slate-800" />,
     },
     {
       num: '03',
-      title: 'Select Vessel & Trip Mode',
-      desc: 'Choose your desired boat class: Traditional Row Boat, Motor Boat, Solar EV Catamaran, or Royal Bajra. Select 1-way, round trip, or Aarti cruise.',
-      icon: <Anchor className="w-5 h-5 text-indigo-600" />,
+      title: 'Instant Boat Driver Match',
+      desc: 'Our dispatch matches the closest certified boat driver. Track boat arrival in real time with boat registration & driver credentials.',
+      icon: <Navigation className="w-5 h-5 text-emerald-600" />,
     },
     {
       num: '04',
-      title: 'Lock Transparent Tariff',
-      desc: 'View the exact, government-ratified price before payment. Instant atomic reservation locks eliminate double booking risks.',
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-600" />,
-    },
-    {
-      num: '05',
-      title: 'Meet Your Verified Manjhi',
-      desc: 'Follow live boatman arrival at your designated pier cleat. Check vessel registration (UP-65-NV) and boatman license on your phone.',
-      icon: <Navigation className="w-5 h-5 text-sky-600" />,
-    },
-    {
-      num: '06',
-      title: 'Fasten Life Jacket & Glide',
-      desc: 'Secure your inspected life vest, step aboard with boatman assistance, and enjoy peaceful cruising protected by real-time GPS telemetry.',
-      icon: <ShieldCheck className="w-5 h-5 text-rose-600" />,
+      title: 'Put On Life Jacket & Ride Safely',
+      desc: 'Put on your certified safety life jacket, step aboard with pier assistance, and enjoy a peaceful, scenic ride backed by 24/7 emergency support.',
+      icon: <ShieldCheck className="w-5 h-5 text-sky-600" />,
     },
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-white border-t border-slate-200/80">
+    <section className={`${transparent ? 'bg-transparent py-0' : 'py-16 sm:py-24 bg-white border-t border-slate-200/80'} ${className || ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#EB4D37]">
-            Simple & Transparent Journey
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            How Boat Booking Works with Naavi
-          </h2>
-          <p className="text-base text-slate-600">
-            A frictionless digital process designed specifically for Varanasi’s riverfront geography and pilgrim convenience.
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#C5A059]">
+              Simple & Transparent Journey
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              How Boat Booking Works on Naavi
+            </h2>
+            <p className="text-base text-slate-600">
+              Frictionless on-demand boat booking. As straightforward as booking a cab, built for rivers and lakes.
+            </p>
+          </div>
+        )}
 
         {/* Steps Grid */}
-        <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className={`${hideHeader ? 'mt-0' : 'mt-10 sm:mt-14'} grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6`}>
           {steps.map((step, idx) => (
-            <Card key={idx} className="p-5 sm:p-7 relative flex flex-col justify-between group">
+            <Card
+              key={idx}
+              className={`p-6 relative flex flex-col justify-between group hover:border-slate-400/80 transition-all ${
+                transparent ? 'bg-white/92 backdrop-blur-xl border border-white/80 shadow-2xl shadow-slate-900/10' : ''
+              }`}
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 group-hover:bg-[#FFF1EE] transition-colors">
+                  <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 group-hover:bg-[#FAF7F0] transition-colors">
                     {step.icon}
                   </div>
-                  <span className="font-mono text-2xl font-black text-slate-300 group-hover:text-[#EB4D37] transition-colors">
+                  <span className="font-mono text-xl font-extrabold text-slate-300 group-hover:text-[#C5A059] transition-colors">
                     {step.num}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#EB4D37] transition-colors">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-slate-950 transition-colors">
                   {step.title}
                 </h3>
                 
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                   {step.desc}
                 </p>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <span>Phase {step.num}</span>
+              <div className="mt-6 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span>Step {step.num}</span>
               </div>
             </Card>
           ))}

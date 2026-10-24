@@ -9,11 +9,18 @@ const User = require('../models/User');
 const { BOOKING_STATUS, BOOKING_TYPE, PAYMENT_MODES, PAYMENT_STATUS, BOAT_CATEGORIES, TRIP_TYPES } = require('../config/constants');
 const { findAndAssignDriver } = require('../services/allocationService');
 const { calculateRefund, createMockRazorpayOrder } = require('../services/paymentService');
-const { emitToAdminOps, broadcastRideLifecycleUpdate } = require('../services/socketService');
+const { emitToAdminOps, emitToDriver, emitToAllDrivers, broadcastRideLifecycleUpdate } = require('../services/socketService');
 const { acquireLock, releaseLock } = require('../config/redis');
+const {
+  sharedBookings,
+  getAllSharedBookings,
+  getSharedBookingById,
+  saveSharedBooking,
+  updateSharedBooking
+} = require('../services/bookingStore');
 
-// In-memory store when MongoDB is offline or for mock history
-const inMemoryBookings = new Map();
+// In-memory store reference pointing to central shared store
+const inMemoryBookings = sharedBookings;
 
 // Seed realistic ride history matching customer journey
 const seedBookings = [
@@ -429,6 +436,8 @@ const createBooking = async (req, res, next) => {
         zoneNumber: Number(zoneNumber) || 1,
         boardingPointId: { _id: resolvedBoardingPointId || 'g1', name: 'Dashashwamedh Ghat' },
         ghatName: 'Dashashwamedh Ghat',
+        boardingGhat: 'Dashashwamedh Ghat',
+        destinationGhat: 'Assi Ghat',
         boatName: boatCategory === 'MANUAL_ROW_BOAT' ? 'Standard Hand-Row Boat' : boatCategory === 'LUXURY_BAJRA' ? 'Royal Heritage Bajra' : 'Ganga Vihar Motor Boat',
         boatImage: boatCategory === 'MANUAL_ROW_BOAT' ? 'assets/images/boat_row.jpg' : boatCategory === 'LUXURY_BAJRA' ? 'assets/images/boat_premium.jpg' : 'assets/images/boat_motor.jpg',
         dateTimeText: bookingType === BOOKING_TYPE.BOOK_LATER ? (scheduledDateText || 'Tomorrow') + ' | ' + (timeSlotText || '06:00 AM') : 'Today | Just Now',
@@ -448,35 +457,77 @@ const createBooking = async (req, res, next) => {
         finalPayableAmount,
         paymentMode,
         paymentStatus: paymentMode === PAYMENT_MODES.ONLINE_PREPAID ? 'PAID' : 'PENDING',
-        status: bookingType === BOOKING_TYPE.BOOK_LATER ? BOOKING_STATUS.SCHEDULED : BOOKING_STATUS.DRIVER_ASSIGNED,
+        status: bookingType === BOOKING_TYPE.BOOK_LATER ? BOOKING_STATUS.SCHEDULED : BOOKING_STATUS.SEARCHING_DRIVER,
         cancellationPolicyText: cancellationPolicy,
         driverId: {
-          _id: 'driver_mock_ramesh',
-          name: 'Ramesh Yadav',
+          _id: 'driver_mock_1',
+          name: 'Ram Manjhi',
           phone: '+91 98765 43220',
-          rating: 4.8,
-          totalRides: '320+',
+          rating: 4.9,
+          totalRides: '120+',
           avatar: 'assets/images/driver_avatar.jpg'
         },
-        driverName: 'Ramesh Yadav',
+        driverName: 'Ram Manjhi',
         driverPhone: '+91 98765 43220',
         boatId: {
-          _id: 'boat_mock_upb1024',
+          _id: 'boat_1',
           name: 'Ganga Vihar Motor Boat',
           customBoatId: 'UPB-1024',
           zoneNumber: 1
         },
         boatNumber: 'UPB-1024',
+        startRideOtp: req.body.startRideOtp || '4921',
+        customerName: req.user ? `${req.user.firstName || 'Rahul'} ${req.user.lastName || 'Sharma'}`.trim() : 'Rahul Sharma',
+        customerPhone: req.user?.phone || '+91 98765 43210',
         chatMessages: [
           { sender: 'DRIVER', text: 'Namaste! Main Ghat par taiyaar hoon. Surakshit yatra ke liye kripya life jacket pehankar baithein.', timestamp: new Date().toISOString() }
         ],
         createdAt: new Date().toISOString()
       };
-      inMemoryBookings.set(mockBooking._id, mockBooking);
+      
+      saveSharedBooking(mockBooking);
+
+      const requestPayload = {
+        bookingId: mockBooking._id,
+        bookingCode: mockBooking.bookingCode,
+        boardingPoint: mockBooking.ghatName,
+        destinationPoint: mockBooking.destinationGhat,
+        zoneNumber: mockBooking.zoneNumber,
+        seats: mockBooking.seatsBooked,
+        tripType: mockBooking.tripType,
+        fareAmount: mockBooking.finalPayableAmount,
+        boatCategory: mockBooking.boatCategory,
+        customerName: mockBooking.customerName,
+        customerPhone: mockBooking.customerPhone,
+        timeoutSeconds: 30
+      };
+
+      // 1. Instant real-time dispatch to Driver App
+      emitToAllDrivers('NEW_BOOKING_REQUEST', requestPayload);
+      emitToDriver('driver_mock_1', 'NEW_BOOKING_REQUEST', requestPayload);
+      emitToDriver('drv_1', 'NEW_BOOKING_REQUEST', requestPayload);
+
+      // 2. Real-time alert to Admin Panel
+      emitToAdminOps('NEW_BOOKING_ALERT', {
+        bookingId: mockBooking._id,
+        bookingCode: mockBooking.bookingCode,
+        bookingType: mockBooking.bookingType,
+        zoneNumber: mockBooking.zoneNumber,
+        customerName: mockBooking.customerName,
+        customerPhone: mockBooking.customerPhone,
+        fareAmount: mockBooking.finalPayableAmount,
+        seats: mockBooking.seatsBooked,
+        boatCategory: mockBooking.boatCategory,
+        status: mockBooking.status,
+        timestamp: new Date()
+      });
+
+      // 3. Broadcast to all clients
+      broadcastRideLifecycleUpdate(mockBooking);
 
       return res.status(201).json({
         success: true,
-        message: 'Booking created successfully (in-memory mode)',
+        message: 'Booking created successfully and dispatched to rider & ops in real time',
         data: mockBooking
       });
     }
@@ -545,6 +596,30 @@ const createBooking = async (req, res, next) => {
         sourceChannel: 'CUSTOMER_APP'
       });
 
+      saveSharedBooking({
+        _id: booking._id.toString(),
+        bookingCode: booking.bookingCode,
+        status: booking.status,
+        zoneNumber: booking.zoneNumber,
+        boatCategory: booking.boatCategory,
+        tripType: booking.tripType,
+        seatsBooked: booking.seatsBooked,
+        fareAmount: booking.fareAmount,
+        finalPayableAmount: booking.finalPayableAmount,
+        paymentMode: booking.paymentMode,
+        paymentStatus: booking.paymentStatus,
+        boardingGhat: 'Dashashwamedh Ghat',
+        destinationGhat: 'Assi Ghat',
+        customerName: req.user ? `${req.user.firstName || 'Rahul'} ${req.user.lastName || 'Sharma'}`.trim() : 'Rahul Sharma',
+        customerPhone: req.user?.phone || '+91 98765 43210',
+        driverName: 'Ram Manjhi',
+        driverPhone: '+91 98765 43220',
+        boatName: 'Ganga Vihar Motor Boat',
+        boatNumber: 'UPB-1024',
+        startRideOtp: req.body.startRideOtp || '4921',
+        createdAt: booking.createdAt
+      });
+
       let paymentOrder = null;
       if (paymentMode === PAYMENT_MODES.ONLINE_PREPAID) {
         paymentOrder = await createMockRazorpayOrder(booking);
@@ -556,19 +631,45 @@ const createBooking = async (req, res, next) => {
         });
       }
 
+      const requestPayload = {
+        bookingId: booking._id.toString(),
+        bookingCode: booking.bookingCode,
+        boardingPoint: 'Dashashwamedh Ghat',
+        destinationPoint: 'Assi Ghat',
+        zoneNumber: booking.zoneNumber,
+        seats: booking.seatsBooked,
+        tripType: booking.tripType,
+        fareAmount: booking.finalPayableAmount,
+        boatCategory: booking.boatCategory,
+        customerName: req.user ? `${req.user.firstName || 'Rahul'} ${req.user.lastName || 'Sharma'}`.trim() : 'Guest Passenger',
+        customerPhone: req.user?.phone || '+91 98765 43210',
+        timeoutSeconds: 30
+      };
+
+      // Real-time dispatch to Driver App
+      emitToAllDrivers('NEW_BOOKING_REQUEST', requestPayload);
+      emitToDriver('driver_mock_1', 'NEW_BOOKING_REQUEST', requestPayload);
+      emitToDriver('drv_1', 'NEW_BOOKING_REQUEST', requestPayload);
+
+      // Real-time alert to Admin Panel
       emitToAdminOps('NEW_BOOKING_ALERT', {
         bookingId: booking._id,
         bookingCode: booking.bookingCode,
         bookingType: booking.bookingType,
         zoneNumber: booking.zoneNumber,
-        scheduledTime: booking.scheduledTime,
-        finalPayableAmount: booking.finalPayableAmount,
-        status: booking.status
+        customerName: req.user ? `${req.user.firstName || 'Rahul'} ${req.user.lastName || 'Sharma'}`.trim() : 'Guest Passenger',
+        fareAmount: booking.finalPayableAmount,
+        seats: booking.seatsBooked,
+        boatCategory: booking.boatCategory,
+        status: booking.status,
+        timestamp: new Date()
       });
+
+      broadcastRideLifecycleUpdate(booking);
 
       res.status(201).json({
         success: true,
-        message: 'Booking created successfully',
+        message: 'Booking created successfully and dispatched to rider & ops in real time',
         data: booking,
         paymentOrder
       });

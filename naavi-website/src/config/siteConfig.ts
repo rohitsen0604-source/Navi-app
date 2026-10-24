@@ -1,14 +1,14 @@
 /**
- * Naavi Official Information Website Configuration
- * Centralized configuration for brand, store links, contacts, and navigation.
+ * Naavi Official Boat Booking App Configuration
+ * Universal configuration for brand, store links, contacts, and navigation.
  */
 
 export const siteConfig = {
   brand: {
     name: 'Naavi',
-    tagline: 'River & Lake Boat Booking & Operations Platform',
-    mission: 'Digitalizing river waterways with fair tariffs, verified Manjhis, and 100% passenger safety compliance.',
-    flagshipLocation: 'Varanasi, Uttar Pradesh (River Ganges)',
+    tagline: 'On-Demand River & Lake Boat Booking App',
+    mission: 'Booking boats easily with transparent fares, verified boat drivers, and 100% passenger life-jacket safety.',
+    flagshipLocation: 'Rivers & Lakes Across India',
     logo: '/images/naavi_logo.png',
     logoTransparent: '/images/naavi_logo_transparent.png',
     logoWhite: '/images/naavi_logo_white.png',
@@ -18,45 +18,44 @@ export const siteConfig = {
   },
 
   // Store download links and states
-  // As per guidelines: clearly identify editable config and show appropriate coming-soon state if not published
   appStores: {
     android: {
-      isAvailable: false, // Set to true when published on Google Play
+      isAvailable: false,
       url: 'https://play.google.com/store/apps/details?id=com.naavi.customer',
       badgeLabel: 'Get it on Google Play',
-      statusNotice: 'Currently in Pilot Rollout across Varanasi Ghats. APK demo available for registered users.',
+      statusNotice: 'Currently in active rollout. APK preview available for registered test users.',
     },
     ios: {
-      isAvailable: false, // Set to true when published on App Store
-      url: 'https://apps.apple.com/app/naavi-river-boat-booking/id6400000000',
+      isAvailable: false,
+      url: 'https://apps.apple.com/app/naavi-boat-booking/id6400000000',
       badgeLabel: 'Download on App Store',
       statusNotice: 'Apple App Store release scheduled for next milestone.',
     },
     driverApp: {
-      name: 'Naavi Driver & Boatman Partner App',
-      statusNotice: 'Exclusive app for registered Varanasi Boatmen / Manjhi community.',
+      name: 'Naavi Boat Driver Partner App',
+      statusNotice: 'Exclusive platform for registered boat drivers & boat operators.',
     }
   },
 
-  // Verified official contact channels from backend supportController.js
+  // Verified official contact channels
   contact: {
     hotlines: {
       tollFree: '1800-102-NAAVI (62284)',
       emergencyPolice: '112',
-      waterPolice: '+91 542 2221234',
+      waterPolice: '1800-425-2424',
       whatsappSupport: '+91 98765 00000',
       supportEmail: 'support@naavi.in',
       grievanceEmail: 'grievance@naavi.in',
     },
     operatingHours: {
-      riverBoating: '05:00 AM – 09:30 PM (Daily)',
-      districtAdvisory: 'Operating hours strictly governed by Varanasi District Administration & Water Police protocols.',
-      supportDesk: '24/7 Ghat Helpdesks at Major Transit Points',
+      riverBoating: '05:30 AM – 10:30 PM (Daily)',
+      districtAdvisory: 'Operating hours governed by River Safety protocols.',
+      supportDesk: '24/7 Boat Pier Helpdesks at Major Points',
     },
     centralOffice: {
-      address: 'Naavi River Operations Command Center, Dashashwamedh Riverfront Terminal, Varanasi, Uttar Pradesh 221001',
-      city: 'Varanasi',
-      state: 'Uttar Pradesh',
+      address: 'Naavi River Technologies, Riverfront Hub, India',
+      city: 'National Operations',
+      state: 'India',
       country: 'India',
     }
   },
@@ -64,13 +63,12 @@ export const siteConfig = {
   // Navigation Links
   navLinks: [
     { label: 'Home', path: '/' },
-    { label: 'About', path: '/about' },
     { label: 'Services', path: '/services' },
     { label: 'How It Works', path: '/how-it-works' },
-    { label: '15 Zones', path: '/zones' },
-    { label: 'Our Fleet', path: '/fleet' },
-    { label: 'Safety First', path: '/safety' },
+    { label: 'Boat Points & Piers', path: '/zones' },
+    { label: 'Safety', path: '/safety' },
     { label: 'FAQ', path: '/faq' },
+    { label: 'About', path: '/about' },
     { label: 'Contact', path: '/contact' },
   ],
 

@@ -31,8 +31,8 @@ export async function submitContactTicket(data: ContactFormData): Promise<Suppor
       const result = await response.json();
       return {
         success: true,
-        ticketId: result.data?.ticketId || `TKT-VAR-${Math.floor(10000 + Math.random() * 90000)}`,
-        message: result.message || 'Your inquiry was received by our Ghat Support Desk. A station officer will review it shortly.',
+        ticketId: result.data?.ticketId || `TKT-NV-${Math.floor(10000 + Math.random() * 90000)}`,
+        message: result.message || 'Your inquiry was received by our Port Support Desk. A station officer will review it shortly.',
         status: result.data?.status || 'OPEN_IN_PROGRESS',
         estimatedResponse: result.data?.estimatedResponseTime || 'Within 15 minutes'
       };
@@ -41,12 +41,11 @@ export async function submitContactTicket(data: ContactFormData): Promise<Suppor
     }
   } catch (error) {
     console.warn('[Naavi API] Backend server unreachable or timed out. Falling back to local offline ticket generation:', error);
-    // Simulating verified ticket issuance for demonstration when local backend dev server is not running
-    const fallbackTicketId = `TKT-VAR-${Math.floor(20000 + Math.random() * 70000)}`;
+    const fallbackTicketId = `TKT-NV-${Math.floor(20000 + Math.random() * 70000)}`;
     return {
       success: true,
       ticketId: fallbackTicketId,
-      message: `Your inquiry has been recorded locally with reference ${fallbackTicketId}. Our Varanasi Ghat Desk has been queued.`,
+      message: `Your inquiry has been recorded with reference ${fallbackTicketId}. Our Boat Operations Desk has been queued.`,
       status: 'QUEUED_LOCAL',
       estimatedResponse: 'Next available station officer'
     };

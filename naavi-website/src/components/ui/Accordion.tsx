@@ -37,17 +37,17 @@ export const Accordion: React.FC<AccordionProps> = ({
         return (
           <div
             key={item.id}
-            className="border border-slate-200/90 rounded-2xl bg-white overflow-hidden transition-colors"
+            className="border border-slate-200/80 rounded-2xl bg-white/85 backdrop-blur-md overflow-hidden transition-all hover:border-slate-300"
           >
             <button
               onClick={() => toggle(item.id)}
-              className="w-full px-4 sm:px-6 py-3.5 sm:py-4.5 min-h-[48px] text-left flex items-center justify-between gap-3 sm:gap-4 font-semibold text-slate-900 hover:text-[#EB4D37] transition-colors focus:outline-none"
+              className="w-full px-4 sm:px-6 py-3.5 sm:py-4.5 min-h-[48px] text-left flex items-center justify-between gap-3 sm:gap-4 font-semibold text-slate-900 hover:text-[#9E7D3B] transition-colors focus:outline-none"
               aria-expanded={isOpen}
             >
               <span className="text-sm sm:text-lg">{item.title}</span>
               <ChevronDown
                 className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
-                  isOpen ? 'rotate-180 text-[#EB4D37]' : ''
+                  isOpen ? 'rotate-180 text-[#C5A059]' : ''
                 }`}
               />
             </button>

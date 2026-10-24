@@ -1,50 +1,50 @@
 import React from 'react';
-import { DollarSign, ShieldCheck, Users, Radio, Map, Zap } from 'lucide-react';
+import { DollarSign, ShieldCheck, Users, Radio, MapPin, Zap } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 export const BenefitsSection: React.FC = () => {
   const benefits = [
     {
-      icon: <DollarSign className="w-6 h-6 text-[#EB4D37]" />,
-      title: 'Zero Predatory Bargaining',
-      desc: 'Transparent, government-ratified tariff charts across all 15 Varanasi zones. No surprises, no middleman commissions, and no aggressive haggling at the steps.',
-      bg: 'bg-[#FFF1EE]',
-      border: 'border-[#FFD5CE]'
+      icon: <DollarSign className="w-5 h-5 text-[#C5A059]" />,
+      title: 'Zero Haggling or Overcharging',
+      desc: 'Transparent, upfront fares calculated on distance and boat type. Know exactly what you pay before booking with zero cash surcharges.',
+      bg: 'bg-[#FAF7F0]',
+      border: 'border-[#EADCB9]'
     },
     {
-      icon: <ShieldCheck className="w-6 h-6 text-emerald-600" />,
-      title: '100% Life Jacket Enforcement',
-      desc: 'Mandatory ISI / USCG certified flotation vests for every single traveler, including dedicated sizes for children. Vessels do not depart without gear fastened.',
+      icon: <ShieldCheck className="w-5 h-5 text-emerald-600" />,
+      title: '100% Certified Life Jackets',
+      desc: 'Mandatory certified life vests for every single passenger, including specialized child sizes. Boats do not depart without gear fastened.',
       bg: 'bg-emerald-50',
       border: 'border-emerald-200'
     },
     {
-      icon: <Users className="w-6 h-6 text-[#FF7A00]" />,
-      title: 'Verified Traditional Manjhis',
-      desc: 'Hereditary boatmen with generational knowledge of Ganga currents, sandbars, and ritual history. Fully background-verified with UP Inland Vessels licenses.',
-      bg: 'bg-[#FFF4EB]',
-      border: 'border-orange-200'
+      icon: <Users className="w-5 h-5 text-slate-800" />,
+      title: 'Verified & Licensed Boat Drivers',
+      desc: 'All boat drivers are verified operators with valid boat licenses, background checks, and river safety training.',
+      bg: 'bg-slate-100',
+      border: 'border-slate-200'
     },
     {
-      icon: <Radio className="w-6 h-6 text-rose-600" />,
-      title: 'Water Police SOS Integration',
-      desc: 'Every ride features real-time GPS telemetry routed to the Varanasi Water Police Control Desk (+91 542 2221234) and stationed river patrol speedboats.',
+      icon: <Radio className="w-5 h-5 text-rose-600" />,
+      title: 'Real-Time SOS & GPS Tracking',
+      desc: 'Continuous GPS tracking synchronizes your boat ride with our 24/7 River Helpdesk and rescue patrol boats for rapid emergency support.',
       bg: 'bg-rose-50',
       border: 'border-rose-200'
     },
     {
-      icon: <Map className="w-6 h-6 text-sky-600" />,
-      title: '15 Continuous River Zones',
-      desc: 'From southern Assi Ghat (Zone 1) to northern Namo Ghat (Zone 13) and Sant Ravidas Smarak (Zone 15). Interconnected boarding points across all 84 ghats.',
+      icon: <MapPin className="w-5 h-5 text-sky-600" />,
+      title: 'Designated Boarding Piers',
+      desc: 'Board from authorized piers and river steps with clear directions directly inside the Naavi passenger app.',
       bg: 'bg-sky-50',
       border: 'border-sky-200'
     },
     {
-      icon: <Zap className="w-6 h-6 text-indigo-600" />,
-      title: 'Instant Lock & Advance Booking',
-      desc: 'Book on-demand for instant pier dispatch or schedule rides up to T+2 hours in advance. Atomic reservation locks eliminate double bookings.',
-      bg: 'bg-indigo-50',
-      border: 'border-indigo-200'
+      icon: <Zap className="w-5 h-5 text-amber-600" />,
+      title: 'Instant Dispatch or Advance Booking',
+      desc: 'Request an immediate boat ride in seconds (average arrival under 5 minutes) or reserve private boats in advance.',
+      bg: 'bg-amber-50',
+      border: 'border-amber-200'
     }
   ];
 
@@ -54,27 +54,27 @@ export const BenefitsSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#EB4D37]">
-            Why Choose Naavi
+          <span className="text-xs font-bold uppercase tracking-widest text-[#C5A059]">
+            The Naavi Standard
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Transforming River Boating for Passengers & Boatmen
+            Simple, Safe & Reliable River Boat Booking
           </h2>
-          <p className="text-base text-slate-600 leading-relaxed">
-            We preserve Varanasi’s sacred river heritage while introducing modern digital reliability, fair compensation for traditional navigators, and uncompromising passenger safety.
+          <p className="text-base text-slate-600 leading-relaxed font-normal">
+            Eliminating haggling and uncertainty at the riverbank. Enjoy on-demand river and lake boat rides with complete peace of mind.
           </p>
         </div>
 
         {/* Benefits Grid */}
         <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {benefits.map((b, idx) => (
-            <Card key={idx} className="p-5 sm:p-7 flex flex-col justify-between">
-              <div className="space-y-4">
-                <div className={`w-12 h-12 rounded-2xl ${b.bg} ${b.border} border flex items-center justify-center shrink-0`}>
+            <Card key={idx} className="p-6 sm:p-7 flex flex-col justify-between hover:border-slate-400/80 transition-all">
+              <div className="space-y-3.5">
+                <div className={`w-11 h-11 rounded-xl ${b.bg} ${b.border} border flex items-center justify-center shrink-0`}>
                   {b.icon}
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">{b.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{b.desc}</p>
+                <p className="text-sm text-slate-600 leading-relaxed font-normal">{b.desc}</p>
               </div>
             </Card>
           ))}

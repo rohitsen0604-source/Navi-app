@@ -12,9 +12,10 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   ...props
 }) => {
+  const hasCustomBg = className.includes('bg-');
   return (
     <div
-      className={`bg-white rounded-2xl overflow-hidden transition-all duration-300 ${
+      className={`${hasCustomBg ? '' : 'bg-white'} rounded-2xl overflow-hidden transition-all duration-300 ${
         bordered ? 'border border-slate-200/80' : ''
       } ${
         hover

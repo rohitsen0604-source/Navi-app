@@ -5,10 +5,8 @@ import { HeroSection } from '../components/sections/HeroSection';
 import { BenefitsSection } from '../components/sections/BenefitsSection';
 import { FeaturedServicesSection } from '../components/sections/FeaturedServicesSection';
 import { ZonesPreviewSection } from '../components/sections/ZonesPreviewSection';
-import { FleetHighlightsSection } from '../components/sections/FleetHighlightsSection';
 import { HowItWorksSection } from '../components/sections/HowItWorksSection';
 import { SafetyTrustSection } from '../components/sections/SafetyTrustSection';
-import { GhatDesksSection } from '../components/sections/GhatDesksSection';
 import { AppDownloadSection } from '../components/sections/AppDownloadSection';
 
 interface LayoutContextType {
@@ -21,17 +19,15 @@ export const HomePage: React.FC = () => {
   return (
     <>
       <SEO
-        title="Naavi – River & Lake Boat Booking & Operations Platform | Varanasi"
-        description="Official Naavi Information Website. Book verified motor boats, luxury bajras, row boats, and solar EV catamarans across 15 continuous Varanasi Ganges Ghat zones. 100% life-jacket compliance and metered government tariffs."
+        title="Naavi – On-Demand River & Lake Boat Booking App"
+        description="Book on-demand motor boats, row boats, private boats, and electric boats on rivers and lakes. 100% life-jacket verified with transparent metered tariffs like Uber and Rapido."
       />
       <HeroSection onOpenDownloadModal={onOpenDownloadModal} />
       <BenefitsSection />
       <FeaturedServicesSection onOpenDownloadModal={onOpenDownloadModal} showAll={false} />
       <ZonesPreviewSection />
-      <FleetHighlightsSection />
       <HowItWorksSection />
       <SafetyTrustSection />
-      <GhatDesksSection />
       <AppDownloadSection onOpenDownloadModal={onOpenDownloadModal} />
     </>
   );
