@@ -1,0 +1,13 @@
+{
+  "name": "naavi-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Naavi Monorepo - Boat Booking & Navigation Platform",
+  "scripts": {
+    "build": "npm --prefix backend install",
+    "start": "npm --prefix backend start",
+    "install:backend": "npm --prefix backend install",
+    "start:backend": "npm --prefix backend start",
+    "dev:backend": "npm --prefix backend run dev"
+  }
+}
