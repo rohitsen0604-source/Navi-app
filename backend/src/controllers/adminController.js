@@ -176,10 +176,10 @@ let inMemoryRivers = [
 ];
 
 let inMemoryZones = [
-  { _id: 'z1', zoneNumber: 1, name: 'Zone 1: Central Heritage Corridor (Dashashwamedh - Manikarnika)', riverLakeId: 'rl1', primaryGhat: 'Dashashwamedh Ghat', speedLimitKmH: 15, surgeMultiplier: 1.0, activeBoats: 12, status: 'ACTIVE' },
-  { _id: 'z2', zoneNumber: 2, name: 'Zone 2: Southern Cultural Zone (Assi - Chet Singh Ghat)', riverLakeId: 'rl1', primaryGhat: 'Assi Ghat', speedLimitKmH: 18, surgeMultiplier: 1.1, activeBoats: 8, status: 'ACTIVE' },
-  { _id: 'z3', zoneNumber: 3, name: 'Zone 3: Northern Spiritual Corridor (Panchganga - Namo Ghat)', riverLakeId: 'rl1', primaryGhat: 'Namo Ghat', speedLimitKmH: 20, surgeMultiplier: 1.0, activeBoats: 9, status: 'ACTIVE' },
-  { _id: 'z4', zoneNumber: 4, name: 'Zone 4: Outer Heritage Reach (Rajghat & Beyond)', riverLakeId: 'rl1', primaryGhat: 'Rajghat', speedLimitKmH: 22, surgeMultiplier: 1.0, activeBoats: 5, status: 'ACTIVE' }
+  { _id: 'z1', zoneNumber: 1, name: 'Zone 1: Central Heritage Corridor (Dashashwamedh - Manikarnika)', riverLakeId: 'rl1', primaryGhat: 'Dashashwamedh Ghat', speedLimitKmH: 15, surgeMultiplier: 1.0, activeBoats: 12, status: 'ACTIVE', servicePincodes: '221001, 221002' },
+  { _id: 'z2', zoneNumber: 2, name: 'Zone 2: Southern Cultural Zone (Assi - Chet Singh Ghat)', riverLakeId: 'rl1', primaryGhat: 'Assi Ghat', speedLimitKmH: 18, surgeMultiplier: 1.1, activeBoats: 8, status: 'ACTIVE', servicePincodes: '221005, 221001' },
+  { _id: 'z3', zoneNumber: 3, name: 'Zone 3: Northern Spiritual Corridor (Panchganga - Namo Ghat)', riverLakeId: 'rl1', primaryGhat: 'Namo Ghat', speedLimitKmH: 20, surgeMultiplier: 1.0, activeBoats: 9, status: 'ACTIVE', servicePincodes: '221001, 221003' },
+  { _id: 'z4', zoneNumber: 4, name: 'Zone 4: Outer Heritage Reach (Rajghat & Beyond)', riverLakeId: 'rl1', primaryGhat: 'Rajghat', speedLimitKmH: 22, surgeMultiplier: 1.0, activeBoats: 5, status: 'ACTIVE', servicePincodes: '221001, 221008' }
 ];
 
 let inMemoryGhats = [

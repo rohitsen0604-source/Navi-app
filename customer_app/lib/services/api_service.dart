@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 
 class ApiService {
+  static const Duration _timeout = Duration(seconds: 15);
+
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token');
@@ -27,7 +29,7 @@ class ApiService {
         Uri.parse('${AppConstants.baseUrl}/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phone': phone}),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Demo OTP 123456 generated'};
@@ -40,7 +42,7 @@ class ApiService {
         Uri.parse('${AppConstants.baseUrl}/auth/verify-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phone': phone, 'otp': otp, 'role': 'CUSTOMER'}),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       if (data['success'] == true && data['token'] != null) {
         await saveToken(data['token']);
@@ -80,7 +82,7 @@ class ApiService {
           'email': email,
           if (phone != null) 'phone': phone,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       if (data['success'] == true && data['token'] != null) {
         await saveToken(data['token']);
@@ -110,7 +112,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -147,7 +149,7 @@ class ApiService {
           if (appTheme != null) 'appTheme': appTheme,
           if (notificationsEnabled != null) 'notificationsEnabled': notificationsEnabled,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Preferences updated successfully'};
@@ -164,7 +166,7 @@ class ApiService {
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'newPhone': newPhone}),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'OTP sent to verify phone $newPhone'};
@@ -189,7 +191,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('${AppConstants.baseUrl}/master-data/rivers'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -212,7 +214,7 @@ class ApiService {
       final uri = riverLakeId != null
           ? Uri.parse('${AppConstants.baseUrl}/master-data/zones?riverLakeId=$riverLakeId')
           : Uri.parse('${AppConstants.baseUrl}/master-data/zones');
-      final response = await http.get(uri).timeout(const Duration(seconds: 4));
+      final response = await http.get(uri).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -227,7 +229,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('${AppConstants.baseUrl}/master-data/boarding-points?zoneNumber=$zoneNumber'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -250,7 +252,7 @@ class ApiService {
         if (tag != null) 'tag': tag,
       };
       final uri = Uri.parse('${AppConstants.baseUrl}/master-data/available-boats').replace(queryParameters: queryParams);
-      final response = await http.get(uri).timeout(const Duration(seconds: 4));
+      final response = await http.get(uri).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -297,7 +299,7 @@ class ApiService {
         'zoneNumber': zoneNumber.toString(),
         'boatCategory': boatCategory,
       });
-      final response = await http.get(uri).timeout(const Duration(seconds: 4));
+      final response = await http.get(uri).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -335,7 +337,7 @@ class ApiService {
           'timeSlot': timeSlot,
           if (couponCode != null && couponCode.isNotEmpty) 'couponCode': couponCode,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       int base = 600;
@@ -407,7 +409,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -436,7 +438,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -459,7 +461,7 @@ class ApiService {
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'reason': reason ?? 'Cancelled by customer'}),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Booking cancelled successfully'};
@@ -475,7 +477,7 @@ class ApiService {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Trip marked as completed'};
@@ -490,7 +492,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -525,7 +527,7 @@ class ApiService {
           'review': review,
           'tags': finalTags,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Feedback submitted successfully'};
@@ -540,7 +542,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -583,7 +585,7 @@ class ApiService {
           if (notifyContacts != null) 'notifyContacts': notifyContacts,
           if (callLocalEmergency != null) 'callLocalEmergency': callLocalEmergency,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -604,7 +606,7 @@ class ApiService {
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'incidentCode': incidentCode}),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'SOS alert cancelled'};
@@ -619,7 +621,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -662,7 +664,7 @@ class ApiService {
           'phone': phone,
           'relationship': finalRel,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -701,7 +703,7 @@ class ApiService {
           if (driverName != null) 'driverName': driverName,
           if (customMessage != null) 'customMessage': customMessage,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -723,7 +725,7 @@ class ApiService {
         if (fareAmount != null) 'fareAmount': fareAmount.toString(),
       };
       final uri = Uri.parse('${AppConstants.baseUrl}/coupons').replace(queryParameters: queryParams.isEmpty ? null : queryParams);
-      final response = await http.get(uri).timeout(const Duration(seconds: 4));
+      final response = await http.get(uri).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -745,7 +747,7 @@ class ApiService {
           'fareAmount': fareAmount,
           'zoneNumber': zoneNumber,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -761,7 +763,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('${AppConstants.baseUrl}/support/legal'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -796,7 +798,7 @@ class ApiService {
           'description': description,
           if (bookingCode != null) 'bookingCode': bookingCode,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {'success': true, 'message': 'Support ticket created successfully.'};
@@ -811,7 +813,7 @@ class ApiService {
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       final data = jsonDecode(response.body);
       return data['data'] ?? [];
     } catch (_) {
@@ -823,7 +825,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('${AppConstants.baseUrl}/support/helpline'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {

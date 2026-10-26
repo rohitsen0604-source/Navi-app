@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 
 class DriverApiService {
+  static const Duration _timeout = Duration(seconds: 15);
+
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('driver_token');
@@ -19,7 +21,7 @@ class DriverApiService {
       final response = await http.get(
         Uri.parse('${AppConstants.baseUrl}/drivers/onboarding'),
         headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(_timeout);
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
@@ -76,7 +78,7 @@ class DriverApiService {
           'address': address,
           'profilePhotoUrl': profilePhotoUrl ?? 'assets/images/driver_avatar_profile.jpg',
         }),
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       // Offline fallback
@@ -116,7 +118,7 @@ class DriverApiService {
                 'assets/images/driver_boat_photo_2.jpg'
               ],
         }),
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {
@@ -138,7 +140,7 @@ class DriverApiService {
           if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode({'phone': phone}),
-      ).timeout(const Duration(seconds: 8));
+      ).timeout(_timeout);
       return jsonDecode(response.body);
     } catch (_) {
       return {

@@ -23,6 +23,15 @@ const zoneSchema = new mongoose.Schema({
   adjacentZoneNumbers: [{
     type: Number
   }],
+  pincode: {
+    type: String,
+    default: '221001',
+    trim: true
+  },
+  servicePincodes: [{
+    type: String,
+    trim: true
+  }],
   isActive: {
     type: Boolean,
     default: true

@@ -38,7 +38,7 @@ export default function MasterDataView({
     setModalType(type);
     setEditingItem(null);
     if (type === 'rivers') setFormData({ name: '', city: 'Varanasi', state: 'Uttar Pradesh', country: 'India', operatingHours: '05:00 AM - 10:00 PM' });
-    if (type === 'zones') setFormData({ name: '', zoneNumber: (zones?.length || 0) + 1, primaryGhat: 'Dashashwamedh Ghat', speedLimitKmH: 15, surgeMultiplier: 1.0 });
+    if (type === 'zones') setFormData({ name: '', zoneNumber: (zones?.length || 0) + 1, primaryGhat: 'Dashashwamedh Ghat', speedLimitKmH: 15, surgeMultiplier: 1.0, servicePincodes: '221001, 221002' });
     if (type === 'ghats') setFormData({ name: '', zoneNumber: 1, latitude: 25.3059, longitude: 83.0105, peakCapacity: 30, isPopularForAarti: false });
     if (type === 'rides') setFormData({ name: '', id: 'CUSTOM_TRIP', durationMinutes: 60, durationText: '1:00 hr', priceMultiplier: 1.0, description: '' });
     setShowModal(true);
@@ -298,6 +298,7 @@ export default function MasterDataView({
               <tr>
                 <th>Zone Name</th>
                 <th>Zone #</th>
+                <th>Service Pincodes</th>
                 <th>Primary Landmark Ghat</th>
                 <th>Speed Limit</th>
                 <th>Surge Multiplier</th>
@@ -314,6 +315,11 @@ export default function MasterDataView({
                   </td>
                   <td>
                     <span className="badge badge-primary">Zone {z.zoneNumber}</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-info font-mono" style={{ fontSize: 11.5 }}>
+                      {z.servicePincodes || z.pincode || '221001'}
+                    </span>
                   </td>
                   <td>
                     <div style={{ fontWeight: 700 }}>{z.primaryGhat || 'Dashashwamedh'}</div>
@@ -558,27 +564,42 @@ export default function MasterDataView({
               )}
 
               {modalType === 'zones' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <div className="form-group">
-                    <label className="form-label">Speed Limit (km/h)</label>
-                    <input
-                      type="number"
-                      className="form-input"
-                      value={formData.speedLimitKmH || 15}
-                      onChange={(e) => setFormData({ ...formData, speedLimitKmH: Number(e.target.value) })}
-                    />
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div className="form-group">
+                      <label className="form-label">Speed Limit (km/h)</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={formData.speedLimitKmH || 15}
+                        onChange={(e) => setFormData({ ...formData, speedLimitKmH: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Surge Multiplier</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="form-input"
+                        value={formData.surgeMultiplier || 1.0}
+                        onChange={(e) => setFormData({ ...formData, surgeMultiplier: parseFloat(e.target.value) })}
+                      />
+                    </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Surge Multiplier</label>
+                    <label className="form-label">Service Area Pincodes (Comma-separated)</label>
                     <input
-                      type="number"
-                      step="0.1"
-                      className="form-input"
-                      value={formData.surgeMultiplier || 1.0}
-                      onChange={(e) => setFormData({ ...formData, surgeMultiplier: parseFloat(e.target.value) })}
+                      type="text"
+                      className="form-input font-mono"
+                      value={formData.servicePincodes || ''}
+                      onChange={(e) => setFormData({ ...formData, servicePincodes: e.target.value })}
+                      placeholder="e.g. 221001, 221002, 221005"
                     />
+                    <small style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                      App customers located in these postal PIN code areas will have access to this service corridor.
+                    </small>
                   </div>
-                </div>
+                </>
               )}
 
               {modalType === 'rivers' && (
