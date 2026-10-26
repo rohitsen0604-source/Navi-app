@@ -74,14 +74,14 @@ export const siteConfig = {
 
   // Backend API configuration
   api: {
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseUrl: import.meta.env.VITE_API_URL || 'https://naavibackend.onrender.com/api',
     endpoints: {
       helplineInfo: '/support/helpline-info',
       createTicket: '/support/tickets',
       legalTerms: '/support/legal',
-      zones: '/master/zones',
-      boardingPoints: '/master/boarding-points',
-      boats: '/master/available-boats',
+      zones: '/master-data/zones',
+      boardingPoints: '/master-data/boarding-points',
+      boats: '/master-data/available-boats',
     }
   }
 };
